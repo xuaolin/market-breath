@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import sys
+import time
+from collections import deque
 from pathlib import Path
 
 import numpy as np
@@ -11,6 +13,7 @@ from common import (
     DATA_DIR,
     fetch_aaii_recent,
     fetch_cboe_equity_put_call,
+    fetch_cboe_equity_put_call_history,
     fetch_fred_series,
     fetch_stooq,
     fetch_yahoo_history,
@@ -47,13 +50,47 @@ def rolling_percentile(
     window: int = 1260,
     min_periods: int = 252,
 ) -> pd.Series:
-    def pct(a: np.ndarray) -> float:
-        a = a[np.isfinite(a)]
-        if len(a) == 0:
-            return np.nan
-        return float(np.mean(a <= a[-1]) * 100.0)
+    """
+    Rolling percentile of the CURRENT observation.
 
-    return s.rolling(window=window, min_periods=min_periods).apply(pct, raw=True)
+    Important: if today's raw observation is missing, the score is also missing.
+    This prevents a prior day's score from silently appearing as today's score.
+    """
+    def pct(a: np.ndarray) -> float:
+        if len(a) == 0 or not np.isfinite(a[-1]):
+            return np.nan
+        current = a[-1]
+        valid = a[np.isfinite(a)]
+        if len(valid) < min_periods:
+            return np.nan
+        return float(np.mean(valid <= current) * 100.0)
+
+    return s.rolling(window=window, min_periods=1).apply(pct, raw=True)
+
+
+def observation_percentile(
+    s: pd.Series,
+    window_observations: int = 1260,
+    min_periods: int = 20,
+) -> pd.Series:
+    """
+    Percentile based on the last N *actual observations*, not calendar rows.
+
+    This is used for sparse series such as AAII and Cboe put/call, so gaps do not
+    incorrectly discard older valid observations from the reference distribution.
+    """
+    out = pd.Series(np.nan, index=s.index, dtype=float)
+    history: deque[float] = deque(maxlen=window_observations)
+
+    for idx, value in s.items():
+        if pd.isna(value) or not np.isfinite(float(value)):
+            continue
+        v = float(value)
+        history.append(v)
+        if len(history) >= min_periods:
+            arr = np.asarray(history, dtype=float)
+            out.loc[idx] = float(np.mean(arr <= v) * 100.0)
+    return out
 
 
 def weighted_composite(
@@ -74,18 +111,56 @@ def weighted_composite(
     return score, denominator
 
 
-def update_slow_sources() -> dict:
+def ensure_columns(df: pd.DataFrame, names: list[str]) -> pd.DataFrame:
+    for name in names:
+        if name not in df.columns:
+            df[name] = np.nan
+    return df
+
+
+def carry_forward_with_source(
+    df: pd.DataFrame,
+    col: str,
+    limit: int,
+) -> None:
+    """
+    Carry a delayed observation forward a small number of market rows while
+    preserving the date of the actual source observation.
+    """
+    raw = pd.to_numeric(df[col], errors="coerce")
+    source = pd.Series(pd.NaT, index=df.index, dtype="datetime64[ns]")
+    mask = raw.notna()
+    source.loc[mask] = df.index[mask]
+
+    df[col] = raw.ffill(limit=limit)
+    source = source.ffill(limit=limit)
+    df[f"{col}_source_date"] = source.dt.strftime("%Y-%m-%d")
+
+
+def update_reference_sources() -> dict:
     path = DATA_DIR / "source_history.json"
-    src = read_json(path, {"put_call": [], "aaii": []})
+    src = read_json(
+        path,
+        {
+            "put_call": [],
+            "aaii": [],
+            "put_call_reference_bootstrapped": False,
+            "put_call_recent_bootstrapped": False,
+        },
+    )
     src.setdefault("put_call", [])
     src.setdefault("aaii", [])
+    src.setdefault("put_call_reference_bootstrapped", False)
+    src.setdefault("put_call_recent_bootstrapped", False)
 
-    try:
-        pc = fetch_cboe_equity_put_call()
-        src["put_call"] = merge_records(src["put_call"], [pc])
-        print(f"Cboe put/call updated: {pc['value']}")
-    except Exception as e:
-        print(f"WARN Cboe put/call fetch failed; keeping old values: {e}")
+    if not src["put_call_reference_bootstrapped"]:
+        try:
+            reference = fetch_cboe_equity_put_call_history()
+            src["put_call"] = merge_records(src["put_call"], reference)
+            src["put_call_reference_bootstrapped"] = True
+            print(f"Cboe historical put/call reference loaded: {len(reference):,} rows")
+        except Exception as e:
+            print(f"WARN Cboe historical put/call bootstrap failed: {e}")
 
     try:
         recent = fetch_aaii_recent()
@@ -107,7 +182,6 @@ def add_price_series(
     start: pd.Timestamp,
     end: pd.Timestamp,
 ) -> None:
-    """Yahoo first; Stooq second. Never raises for an individual source."""
     try:
         y = fetch_yahoo_history(yahoo_symbol, start, end)
         if not y.empty and "Close" in y:
@@ -129,16 +203,47 @@ def add_price_series(
         print(f"WARN Stooq {stooq_symbol} failed: {e}")
 
 
-def ensure_columns(df: pd.DataFrame, names: list[str]) -> pd.DataFrame:
-    for name in names:
-        if name not in df.columns:
-            df[name] = np.nan
-    return df
+def bootstrap_recent_put_call(src: dict, trading_dates: pd.DatetimeIndex) -> None:
+    """
+    Pull a small recent sample from Cboe on the first V2 run.
+    This gives the current put/call score a modern comparison set immediately
+    without making thousands of historical HTTP requests.
+    """
+    if src.get("put_call_recent_bootstrapped"):
+        return
+
+    dates = list(trading_dates[-30:])
+    successes = 0
+    for dt in dates:
+        date_str = pd.Timestamp(dt).date().isoformat()
+        try:
+            rec = fetch_cboe_equity_put_call(date_str)
+            src["put_call"] = merge_records(src["put_call"], [rec])
+            successes += 1
+        except Exception as e:
+            print(f"WARN Cboe daily bootstrap {date_str}: {e}")
+        time.sleep(0.08)
+
+    if successes >= 20:
+        src["put_call_recent_bootstrapped"] = True
+        print(f"Cboe recent put/call bootstrap: {successes} rows")
+    else:
+        print(f"WARN Cboe recent bootstrap only obtained {successes} rows; will retry next run")
+
+
+def add_latest_put_call(src: dict, latest_market_date: str) -> None:
+    try:
+        rec = fetch_cboe_equity_put_call(latest_market_date)
+        src["put_call"] = merge_records(src["put_call"], [rec])
+        print(f"Cboe put/call {latest_market_date}: {rec['value']}")
+    except Exception as e:
+        print(f"WARN Cboe put/call {latest_market_date} failed; keeping old values: {e}")
 
 
 def main() -> None:
     DATA_DIR.mkdir(exist_ok=True)
-    src = update_slow_sources()
+    src_path = DATA_DIR / "source_history.json"
+    src = update_reference_sources()
 
     csv_path = DATA_DIR / "history.csv"
     if csv_path.exists():
@@ -147,13 +252,12 @@ def main() -> None:
             .set_index("date")
             .sort_index()
         )
-        start = old.index.max() - pd.Timedelta(days=60)
+        start = old.index.max() - pd.Timedelta(days=90)
     else:
         old = pd.DataFrame()
         start = pd.Timestamp("2007-12-04")
 
     end = pd.Timestamp.utcnow().tz_localize(None).normalize()
-
     series: dict[str, pd.Series] = {}
 
     for fred_id, name in [
@@ -185,11 +289,7 @@ def main() -> None:
     else:
         fresh = pd.DataFrame(index=old.index.copy())
 
-    if old.empty:
-        combined = fresh.sort_index()
-    else:
-        combined = fresh.combine_first(old).sort_index()
-
+    combined = fresh.sort_index() if old.empty else fresh.combine_first(old).sort_index()
     combined = ensure_columns(combined, REQUIRED_COLUMNS)
 
     if combined["sp500"].notna().sum() == 0 and combined["spy"].notna().sum() > 0:
@@ -205,33 +305,76 @@ def main() -> None:
             "S&P 500 history is unavailable from Yahoo, Stooq, and prior saved history"
         )
 
-    if src.get("put_call"):
-        pc = pd.DataFrame(src["put_call"])
-        pc["date"] = pd.to_datetime(pc["date"], errors="coerce")
-        pc = (
-            pc.dropna(subset=["date"])
-            .set_index("date")["value"]
-            .apply(pd.to_numeric, errors="coerce")
-            .sort_index()
-        )
-        combined["put_call"] = pc.reindex(combined.index).combine_first(
-            combined["put_call"]
-        )
-        combined["put_call"] = combined["put_call"].ffill(limit=5)
+    market_rows = combined.index[combined["sp500"].notna()]
+    latest_market_date = pd.Timestamp(market_rows[-1]).date().isoformat()
 
-    if src.get("aaii"):
-        aa = pd.DataFrame(src["aaii"])
-        aa["date"] = pd.to_datetime(aa["date"], errors="coerce")
-        aa = (
-            aa.dropna(subset=["date"])
-            .set_index("date")["spread"]
-            .apply(pd.to_numeric, errors="coerce")
+    bootstrap_recent_put_call(src, market_rows)
+    add_latest_put_call(src, latest_market_date)
+    src["updated_at"] = now_iso()
+    write_json(src_path, src)
+
+    # FRED series can publish with a slight delay. Carry them forward at most
+    # three market rows and preserve the real source observation date.
+    for col in ["vix", "vix3m", "hy_oas"]:
+        carry_forward_with_source(combined, col, limit=3)
+
+    # Term structure source date is the older of its two source observations.
+    vix_dates = pd.to_datetime(combined["vix_source_date"], errors="coerce")
+    vix3_dates = pd.to_datetime(combined["vix3m_source_date"], errors="coerce")
+    term_dates = pd.concat([vix_dates, vix3_dates], axis=1).min(axis=1)
+    combined["term_source_date"] = term_dates.dt.strftime("%Y-%m-%d")
+
+    # Cboe daily put/call: score on actual observations, then carry only the
+    # latest observation/score forward across a few market rows.
+    pc_obs = pd.Series(np.nan, index=combined.index, dtype=float)
+    pc_source = pd.Series(pd.NaT, index=combined.index, dtype="datetime64[ns]")
+    if src.get("put_call"):
+        pc_df = pd.DataFrame(src["put_call"])
+        pc_df["date"] = pd.to_datetime(pc_df["date"], errors="coerce")
+        pc_df["value"] = pd.to_numeric(pc_df["value"], errors="coerce")
+        pc = (
+            pc_df.dropna(subset=["date", "value"])
+            .drop_duplicates("date", keep="last")
+            .set_index("date")["value"]
             .sort_index()
         )
-        combined["aaii_spread"] = aa.reindex(combined.index).combine_first(
-            combined["aaii_spread"]
+        common_idx = pc.index.intersection(combined.index)
+        pc_obs.loc[common_idx] = pc.loc[common_idx]
+        pc_source.loc[common_idx] = common_idx
+
+    combined["put_call_observed"] = pc_obs
+    combined["put_call"] = pc_obs.ffill(limit=5)
+    combined["put_call_source_date"] = pc_source.ffill(limit=5).dt.strftime("%Y-%m-%d")
+
+    pc_pct_obs = observation_percentile(pc_obs, window_observations=1260, min_periods=20)
+    combined["put_call_pct"] = pc_pct_obs.ffill(limit=5)
+    combined["put_call_score"] = (100.0 - pc_pct_obs).ffill(limit=5)
+
+    # AAII is weekly. Percentile is based on weekly observations, not repeated
+    # daily forward-filled values.
+    aa_obs = pd.Series(np.nan, index=combined.index, dtype=float)
+    aa_source = pd.Series(pd.NaT, index=combined.index, dtype="datetime64[ns]")
+    if src.get("aaii"):
+        aa_df = pd.DataFrame(src["aaii"])
+        aa_df["date"] = pd.to_datetime(aa_df["date"], errors="coerce")
+        aa_df["spread"] = pd.to_numeric(aa_df["spread"], errors="coerce")
+        aa = (
+            aa_df.dropna(subset=["date", "spread"])
+            .drop_duplicates("date", keep="last")
+            .set_index("date")["spread"]
+            .sort_index()
         )
-        combined["aaii_spread"] = combined["aaii_spread"].ffill(limit=10)
+        common_idx = aa.index.intersection(combined.index)
+        aa_obs.loc[common_idx] = aa.loc[common_idx]
+        aa_source.loc[common_idx] = common_idx
+
+    combined["aaii_observed"] = aa_obs
+    combined["aaii_spread"] = aa_obs.ffill(limit=10)
+    combined["aaii_source_date"] = aa_source.ffill(limit=10).dt.strftime("%Y-%m-%d")
+
+    aa_pct_obs = observation_percentile(aa_obs, window_observations=260, min_periods=20)
+    combined["aaii_pct"] = aa_pct_obs.ffill(limit=10)
+    combined["aaii_score"] = aa_pct_obs.ffill(limit=10)
 
     combined["term_ratio"] = combined["vix"] / combined["vix3m"]
 
@@ -269,20 +412,8 @@ def main() -> None:
     combined["vix_pct"] = rolling_percentile(combined["vix"])
     combined["vix_score"] = 100.0 - combined["vix_pct"]
 
-    combined["put_call_pct"] = rolling_percentile(
-        combined["put_call"],
-        min_periods=20,
-    )
-    combined["put_call_score"] = 100.0 - combined["put_call_pct"]
-
     combined["drawdown_pct"] = rolling_percentile(combined["drawdown_52w"])
     combined["drawdown_score"] = combined["drawdown_pct"]
-
-    combined["aaii_pct"] = rolling_percentile(
-        combined["aaii_spread"],
-        min_periods=20,
-    )
-    combined["aaii_score"] = combined["aaii_pct"]
 
     combined["umsi"], combined["calculation_quality"] = weighted_composite(
         combined,
@@ -333,22 +464,19 @@ def main() -> None:
     combined = combined.loc[combined["sp500"].notna()].copy()
     if combined.empty:
         raise RuntimeError("History contains no valid S&P 500 observations")
-
-    valid_umsi = combined["umsi"].notna().sum()
-    if valid_umsi == 0:
+    if combined["umsi"].notna().sum() == 0:
         raise RuntimeError(
-            "Market history was downloaded, but no UMSI values could be calculated. "
-            "Check VIX/VIX3M/FRED availability."
+            "Market history was downloaded, but no UMSI values could be calculated."
         )
 
     combined.index.name = "date"
     combined.reset_index().to_csv(csv_path, index=False)
 
-    latest_quality = combined.loc[combined["umsi"].notna(), "calculation_quality"].iloc[-1]
+    last_valid = combined.loc[combined["umsi"].notna()].iloc[-1]
     print(
         f"History saved: {len(combined):,} rows, "
         f"{combined.index.min().date()} -> {combined.index.max().date()}, "
-        f"latest calculation quality={latest_quality:.0%}"
+        f"latest calculation quality={last_valid['calculation_quality']:.0%}"
     )
 
 

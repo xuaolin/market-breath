@@ -36,9 +36,15 @@ function renderTop(daily, intraday) {
 
   setText("regimeValue", daily.umsi?.regime || "—");
   setText("qualityValue", `${fmt((daily.umsi?.calculation_quality || 0) * 100, 0)}% inputs`);
-  setText("lastUpdated", daily.generated_at ? new Date(daily.generated_at).toLocaleString() : "Awaiting first update");
+  setText(
+    "lastUpdated",
+    daily.generated_at ? new Date(daily.generated_at).toLocaleString() : "Awaiting first update"
+  );
 
-  const stale = Object.values(daily.indicators || {}).some(x => x.stale) || intraday.sp500?.stale;
+  const stale =
+    Object.values(daily.indicators || {}).some(x => x.stale) ||
+    Boolean(intraday.sp500?.stale);
+
   const badge = document.getElementById("freshnessBadge");
   if (badge) {
     badge.textContent = freshness(stale);
@@ -46,18 +52,42 @@ function renderTop(daily, intraday) {
   }
 }
 
+function formatRaw(key, item) {
+  const v = item?.raw_value;
+  if (v == null) return "—";
+
+  if (key === "drawdown") return `${(Number(v) * 100).toFixed(2)}%`;
+  if (key === "term") return Number(v).toFixed(3);
+  if (key === "credit") return `${Number(v).toFixed(2)}%`;
+  if (key === "vix") return Number(v).toFixed(2);
+  if (key === "put_call") return Number(v).toFixed(2);
+  if (key === "aaii") return Number(v).toFixed(1);
+  if (key === "breadth") return Number(v).toFixed(4);
+  return fmt(v, 4);
+}
+
 function renderIndicators(daily) {
   const tbody = document.querySelector("#indicatorTable tbody");
   tbody.innerHTML = "";
-  Object.values(daily.indicators || {}).forEach(item => {
+
+  Object.entries(daily.indicators || {}).forEach(([key, item]) => {
     const tr = document.createElement("tr");
-    const raw = item.label?.includes("Drawdown") ? fmt((item.raw_value || 0) * 100, 2, "%") : fmt(item.raw_value, 4);
+    const source = item.source_date || "No source date";
+    const stale = item.stale ? " · STALE" : "";
+    const effectiveWeight =
+      item.effective_weight != null
+        ? ` title="Effective weight after re-normalization: ${(item.effective_weight * 100).toFixed(1)}%"`
+        : "";
+
     tr.innerHTML = `
-      <td><div class="indicator-name">${item.label}</div><div class="subtle">${item.source_date || "No source date"}${item.stale ? " · STALE" : ""}</div></td>
-      <td>${raw}</td>
+      <td>
+        <div class="indicator-name">${item.label}</div>
+        <div class="subtle">${source}${stale}</div>
+      </td>
+      <td>${formatRaw(key, item)}</td>
       <td>${fmt(item.percentile, 1, "%")}</td>
       <td><span class="score-pill ${scoreClass(item.score)}">${fmt(item.score, 1)}</span></td>
-      <td>${fmt((item.weight || 0) * 100, 0, "%")}</td>
+      <td${effectiveWeight}>${fmt((item.weight || 0) * 100, 0, "%")}</td>
       <td>${fmt(item.contribution, 2)}</td>
       <td>${item.status || "—"}</td>`;
     tbody.appendChild(tr);
@@ -75,7 +105,10 @@ function renderForward(history) {
   tbody.innerHTML = "";
   (history.forward_returns || []).forEach(r => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${r.range}</td><td>${r.observations}</td><td>${retCell(r.return_1m)}</td><td>${retCell(r.return_3m)}</td><td>${retCell(r.return_6m)}</td><td>${retCell(r.return_12m)}</td>`;
+    tr.innerHTML =
+      `<td>${r.range}</td><td>${r.observations}</td>` +
+      `<td>${retCell(r.return_1m)}</td><td>${retCell(r.return_3m)}</td>` +
+      `<td>${retCell(r.return_6m)}</td><td>${retCell(r.return_12m)}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -85,7 +118,11 @@ function renderEvents(history) {
   tbody.innerHTML = "";
   (history.events || []).forEach(e => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${e.date}</td><td>${e.event}</td><td>${fmt(e.umsi, 1)}</td><td>${fmt(e.stress, 1)}</td><td>${fmt(e.fragility, 1)}</td><td>${retCell(e.return_1m)}</td><td>${retCell(e.return_3m)}</td><td>${retCell(e.return_6m)}</td>`;
+    tr.innerHTML =
+      `<td>${e.date}</td><td>${e.event}</td><td>${fmt(e.umsi, 1)}</td>` +
+      `<td>${fmt(e.stress, 1)}</td><td>${fmt(e.fragility, 1)}</td>` +
+      `<td>${retCell(e.return_1m)}</td><td>${retCell(e.return_3m)}</td>` +
+      `<td>${retCell(e.return_6m)}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -120,6 +157,7 @@ async function main() {
       getJSON("data/intraday.json"),
       getJSON("data/history.json"),
     ]);
+
     renderTop(daily, intraday);
     renderIndicators(daily);
     renderForward(history);
@@ -129,8 +167,9 @@ async function main() {
     bindRangeButtons(history);
 
     if (daily.status !== "ok") {
-      document.getElementById("systemMessage").textContent = "Run the GitHub Action once to populate live market data.";
-      document.getElementById("systemMessage").hidden = false;
+      const message = document.getElementById("systemMessage");
+      message.textContent = "Run the GitHub Action once to populate live market data.";
+      message.hidden = false;
     }
   } catch (err) {
     console.error(err);

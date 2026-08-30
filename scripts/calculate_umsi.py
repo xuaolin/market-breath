@@ -32,10 +32,23 @@ BINS = [(0, 15), (15, 30), (30, 45), (45, 65), (65, 80), (80, 90), (90, 101)]
 
 
 def n(v, digits=2):
-    if v is None or (isinstance(v, float) and not np.isfinite(v)):
+    if v is None:
         return None
     try:
-        return round(float(v), digits)
+        f = float(v)
+        return round(f, digits) if np.isfinite(f) else None
+    except Exception:
+        return None
+
+
+def clean_date(v) -> str | None:
+    if v is None or (isinstance(v, float) and np.isnan(v)):
+        return None
+    s = str(v)
+    if not s or s.lower() in {"nan", "nat", "none"}:
+        return None
+    try:
+        return pd.Timestamp(s).date().isoformat()
     except Exception:
         return None
 
@@ -102,15 +115,6 @@ def sp_status(dd: float | None) -> str:
     return "Deep Drawdown"
 
 
-def get_source_dates(source_history: dict) -> dict[str, str | None]:
-    out = {"put_call": None, "aaii": None}
-    for key in out:
-        arr = source_history.get(key, [])
-        if arr:
-            out[key] = arr[-1].get("date")
-    return out
-
-
 def nearest_event_row(df: pd.DataFrame, date: str) -> pd.Series | None:
     target = pd.Timestamp(date)
     idx = df.index.searchsorted(target)
@@ -141,35 +145,54 @@ def main() -> None:
     valid = df[df["umsi"].notna()]
     if valid.empty:
         raise RuntimeError("No valid UMSI rows were produced")
+
     last = valid.iloc[-1]
     last_date = valid.index[-1].date().isoformat()
     previous = valid.iloc[-2] if len(valid) > 1 else last
 
-    src_hist = read_json(DATA_DIR / "source_history.json", {"put_call": [], "aaii": []})
-    source_dates = get_source_dates(src_hist)
-
     indicator_defs = [
-        ("term", "VIX / VIX3M Term Structure", "term_ratio", "term_pct", "term_score", WEIGHTS["term"], last_date, 4),
-        ("credit", "High Yield Credit Spread / OAS", "hy_oas", "credit_pct", "credit_score", WEIGHTS["credit"], last_date, 4),
-        ("breadth", "Market Breadth (RSP/SPY Proxy)", "breadth_raw", "breadth_pct", "breadth_score", WEIGHTS["breadth"], last_date, 4),
-        ("vix", "VIX Level", "vix", "vix_pct", "vix_score", WEIGHTS["vix"], last_date, 4),
-        ("put_call", "Equity Put/Call Ratio", "put_call", "put_call_pct", "put_call_score", WEIGHTS["put_call"], source_dates["put_call"], 4),
-        ("drawdown", "S&P 500 52-Week Drawdown", "drawdown_52w", "drawdown_pct", "drawdown_score", WEIGHTS["drawdown"], last_date, 4),
-        ("aaii", "AAII Bull-Bear Spread", "aaii_spread", "aaii_pct", "aaii_score", WEIGHTS["aaii"], source_dates["aaii"], 10),
+        ("term", "VIX / VIX3M Term Structure", "term_ratio", "term_pct", "term_score",
+         WEIGHTS["term"], "term_source_date", 4),
+        ("credit", "High Yield Credit Spread / OAS", "hy_oas", "credit_pct", "credit_score",
+         WEIGHTS["credit"], "hy_oas_source_date", 4),
+        ("breadth", "Market Breadth (RSP/SPY Proxy)", "breadth_raw", "breadth_pct", "breadth_score",
+         WEIGHTS["breadth"], None, 4),
+        ("vix", "VIX Level", "vix", "vix_pct", "vix_score",
+         WEIGHTS["vix"], "vix_source_date", 4),
+        ("put_call", "Equity Put/Call Ratio", "put_call", "put_call_pct", "put_call_score",
+         WEIGHTS["put_call"], "put_call_source_date", 5),
+        ("drawdown", "S&P 500 52-Week Drawdown", "drawdown_52w", "drawdown_pct", "drawdown_score",
+         WEIGHTS["drawdown"], None, 4),
+        ("aaii", "AAII Bull-Bear Spread", "aaii_spread", "aaii_pct", "aaii_score",
+         WEIGHTS["aaii"], "aaii_source_date", 10),
     ]
 
     indicators = {}
-    for key, label, raw_col, pct_col, score_col, weight, source_date, stale_days in indicator_defs:
+    available_target_weight = sum(
+        weight
+        for _, _, _, _, score_col, weight, _, _ in indicator_defs
+        if n(last.get(score_col), 6) is not None
+    )
+
+    for key, label, raw_col, pct_col, score_col, weight, source_col, stale_days in indicator_defs:
         raw = n(last.get(raw_col), 4)
         pct = n(last.get(pct_col), 1)
         score = n(last.get(score_col), 1)
-        contribution = n((score or 0) * weight, 2) if score is not None else None
+        source_date = clean_date(last.get(source_col)) if source_col else last_date
+        effective_weight = (
+            weight / available_target_weight
+            if score is not None and available_target_weight > 0
+            else None
+        )
+        contribution = n(score * effective_weight, 2) if score is not None and effective_weight else None
+
         indicators[key] = {
             "label": label,
             "raw_value": raw,
             "percentile": pct,
             "score": score,
             "weight": weight,
+            "effective_weight": n(effective_weight, 4),
             "contribution": contribution,
             "status": score_status(score),
             "source_date": source_date,
@@ -193,8 +216,16 @@ def main() -> None:
             "regime": umsi_regime(umsi, fragility),
             "calculation_quality": n(last["calculation_quality"], 2),
         },
-        "stress": {"value": stress, "status": band(stress, "stress"), "quality": n(last["stress_quality"], 2)},
-        "fragility": {"value": fragility, "status": band(fragility, "fragility"), "quality": n(last["fragility_quality"], 2)},
+        "stress": {
+            "value": stress,
+            "status": band(stress, "stress"),
+            "quality": n(last["stress_quality"], 2),
+        },
+        "fragility": {
+            "value": fragility,
+            "status": band(fragility, "fragility"),
+            "quality": n(last["fragility_quality"], 2),
+        },
         "market": {
             "sp500": {
                 "value": spx,
@@ -208,17 +239,42 @@ def main() -> None:
         },
         "indicators": indicators,
         "sources": [
-            {"name": "FRED", "url": "https://fred.stlouisfed.org/", "use": "VIX, VIX3M, ICE BofA High Yield OAS"},
-            {"name": "Cboe", "url": "https://www.cboe.com/us/options/market_statistics/daily/", "use": "Equity Put/Call Ratio"},
-            {"name": "AAII", "url": "https://www.aaii.com/sentimentsurvey/sent_results", "use": "Weekly Bull-Bear Sentiment"},
-            {"name": "Stooq", "url": "https://stooq.com/", "use": "Long-run S&P 500 / SPY / RSP price history"},
-            {"name": "Yahoo Finance", "url": "https://finance.yahoo.com/", "use": "Intraday market snapshot fallback"},
+            {
+                "name": "FRED",
+                "url": "https://fred.stlouisfed.org/",
+                "use": "VIX, VIX3M, ICE BofA High Yield OAS",
+            },
+            {
+                "name": "Cboe",
+                "url": "https://www.cboe.com/us/options/market_statistics/daily/",
+                "use": "Equity Put/Call Ratio; official 2006–2019 reference archive + recent daily bootstrap",
+            },
+            {
+                "name": "AAII",
+                "url": "https://www.aaii.com/sentimentsurvey/sent_results",
+                "use": "Weekly Bull-Bear Sentiment",
+            },
+            {
+                "name": "Stooq",
+                "url": "https://stooq.com/",
+                "use": "Fallback long-run S&P 500 / SPY / RSP price history",
+            },
+            {
+                "name": "Yahoo Finance",
+                "url": "https://finance.yahoo.com/",
+                "use": "Primary price history and intraday market snapshot",
+            },
         ],
-        "methodology_note": "Historical UMSI re-normalizes weights when AAII or put/call history is unavailable. calculation_quality reports the share of target weight present before re-normalization.",
+        "methodology_note": (
+            "Dense daily indicators use 5-year rolling percentiles. Sparse Cboe put/call and "
+            "AAII series use percentiles over the last N actual observations, not forward-filled "
+            "calendar rows. Delayed FRED observations may be carried forward for up to three market "
+            "rows while retaining the true source_date. calculation_quality reports the target model "
+            "weight available before re-normalization."
+        ),
     }
     write_json(DATA_DIR / "daily.json", daily)
 
-    # History chart data.
     series = []
     for date, row in valid.iterrows():
         series.append({
@@ -264,7 +320,12 @@ def main() -> None:
             "return_12m": n(sample["fwd_12m"].mean(), 1),
         })
 
-    history = {"generated_at": now_iso(), "series": series, "events": events, "forward_returns": forward}
+    history = {
+        "generated_at": now_iso(),
+        "series": series,
+        "events": events,
+        "forward_returns": forward,
+    }
     write_json(DATA_DIR / "history.json", history)
     print(f"daily.json and history.json generated from {last_date}")
 

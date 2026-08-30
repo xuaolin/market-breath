@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
-UA = "Mozilla/5.0 (compatible; UMSI-Dashboard/1.1; +https://github.com/)"
+UA = "Mozilla/5.0 (compatible; UMSI-Dashboard/2.0; +https://github.com/)"
 
 FRED_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
 STOOQ_URL = "https://stooq.com/q/d/l/?s={symbol}&d1={start}&d2={end}&i=d"
@@ -25,6 +25,9 @@ YAHOO_CHART_URLS = (
 )
 AAII_URL = "https://www.aaii.com/sentimentsurvey/sent_results"
 CBOE_DAILY_URL = "https://www.cboe.com/us/options/market_statistics/daily/"
+CBOE_EQUITY_PC_HISTORY_URL = (
+    "https://cdn.cboe.com/resources/options/volume_and_call_put_ratios/equitypc.csv"
+)
 
 
 def now_iso() -> str:
@@ -122,7 +125,6 @@ def fetch_stooq(symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataF
 
 
 def fetch_yahoo_history(symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
-    """Download daily historical closes from Yahoo's public chart endpoint."""
     params = {
         "period1": _epoch_seconds(pd.Timestamp(start).normalize()),
         "period2": _epoch_seconds(pd.Timestamp(end).normalize() + pd.Timedelta(days=1)),
@@ -136,12 +138,8 @@ def fetch_yahoo_history(symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> 
     indicators = item.get("indicators") or {}
     quotes = (indicators.get("quote") or [{}])[0]
     closes = quotes.get("close") or []
-
     adj_blocks = indicators.get("adjclose") or []
     adjusted = adj_blocks[0].get("adjclose") if adj_blocks else None
-
-    if not timestamps or not closes:
-        return pd.DataFrame()
 
     rows: list[tuple[pd.Timestamp, float]] = []
     for i, ts in enumerate(timestamps):
@@ -152,7 +150,6 @@ def fetch_yahoo_history(symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> 
             value = clean_number(closes[i])
         if value is None:
             continue
-
         date = pd.to_datetime(ts, unit="s", utc=True).tz_convert(None).normalize()
         rows.append((date, value))
 
@@ -171,7 +168,6 @@ def fetch_yahoo_chart(symbol: str, interval: str = "5m", range_: str = "1d") -> 
         "events": "div,splits",
     }
     item = _request_yahoo(symbol, params, timeout=20)
-
     meta = item.get("meta", {})
     timestamps = item.get("timestamp") or []
     closes = (((item.get("indicators") or {}).get("quote") or [{}])[0].get("close") or [])
@@ -253,7 +249,6 @@ def fetch_aaii_recent() -> list[dict[str, Any]]:
     r.raise_for_status()
 
     out: list[dict[str, Any]] = []
-
     try:
         tables = pd.read_html(StringIO(r.text))
     except Exception:
@@ -308,7 +303,6 @@ def fetch_aaii_recent() -> list[dict[str, Any]]:
                     "source": AAII_URL,
                 }
             )
-
         if out:
             break
 
@@ -321,51 +315,122 @@ def fetch_aaii_recent() -> list[dict[str, Any]]:
     return out
 
 
-def fetch_cboe_equity_put_call() -> dict[str, Any]:
-    r = requests.get(CBOE_DAILY_URL, headers={"User-Agent": UA}, timeout=30)
-    r.raise_for_status()
-    text = r.text
-
+def _extract_cboe_equity_ratio(text: str) -> float | None:
     match = re.search(
         r"EQUITY\s+PUT/CALL\s+RATIO.{0,500}?([0-9]+\.[0-9]+)",
         text,
         flags=re.I | re.S,
     )
     value = clean_number(match.group(1)) if match else None
+    if value is not None:
+        return value
 
-    if value is None:
-        try:
-            tables = pd.read_html(StringIO(text))
-        except Exception:
-            tables = []
+    try:
+        tables = pd.read_html(StringIO(text))
+    except Exception:
+        tables = []
 
-        for table in tables:
-            blob = " ".join(map(str, table.astype(str).values.flatten()))
-            if "EQUITY PUT/CALL RATIO" not in blob.upper():
+    for table in tables:
+        blob = " ".join(map(str, table.astype(str).values.flatten()))
+        if "EQUITY PUT/CALL RATIO" not in blob.upper():
+            continue
+        for _, row in table.iterrows():
+            row_text = " ".join(map(str, row.values))
+            if "EQUITY PUT/CALL RATIO" not in row_text.upper():
                 continue
+            nums = re.findall(r"\b\d+\.\d+\b", row_text)
+            if nums:
+                return float(nums[-1])
+    return None
 
-            for _, row in table.iterrows():
-                row_text = " ".join(map(str, row.values))
-                if "EQUITY PUT/CALL RATIO" not in row_text.upper():
-                    continue
 
-                nums = re.findall(r"\b\d+\.\d+\b", row_text)
-                if nums:
-                    value = float(nums[-1])
-                    break
-
-            if value is not None:
-                break
-
+def fetch_cboe_equity_put_call(date: str | None = None) -> dict[str, Any]:
+    params = {"dt": date} if date else None
+    r = requests.get(
+        CBOE_DAILY_URL,
+        params=params,
+        headers={"User-Agent": UA},
+        timeout=30,
+    )
+    r.raise_for_status()
+    value = _extract_cboe_equity_ratio(r.text)
     if value is None:
-        raise RuntimeError("Cboe equity put/call ratio not found")
+        raise RuntimeError(f"Cboe equity put/call ratio not found for {date or 'latest'}")
 
+    source_date = date or pd.Timestamp.utcnow().date().isoformat()
     return {
-        "date": pd.Timestamp.utcnow().date().isoformat(),
+        "date": source_date,
         "value": round(value, 4),
         "updated_at": now_iso(),
         "source": CBOE_DAILY_URL,
     }
+
+
+def fetch_cboe_equity_put_call_history() -> list[dict[str, Any]]:
+    """Official Cboe Equity put/call reference history (2006-2019 archive)."""
+    r = requests.get(
+        CBOE_EQUITY_PC_HISTORY_URL,
+        headers={"User-Agent": UA},
+        timeout=45,
+    )
+    r.raise_for_status()
+    df = pd.read_csv(StringIO(r.text))
+    if df.empty:
+        raise RuntimeError("Cboe equity put/call history is empty")
+
+    cols = [str(c).strip() for c in df.columns]
+    lower = {c: c.lower() for c in cols}
+
+    date_candidates = [c for c in cols if "date" in lower[c]]
+    if not date_candidates:
+        date_candidates = [cols[0]]
+    date_col = date_candidates[0]
+
+    ratio_candidates = [
+        c for c in cols
+        if (
+            "p/c" in lower[c]
+            or "put/call" in lower[c]
+            or ("put" in lower[c] and "call" in lower[c] and "ratio" in lower[c])
+        )
+    ]
+
+    if ratio_candidates:
+        ratio_col = ratio_candidates[-1]
+    else:
+        numeric_candidates = []
+        for c in cols[1:]:
+            numeric = pd.to_numeric(df[c], errors="coerce")
+            if numeric.notna().mean() > 0.7:
+                numeric_candidates.append(c)
+        if not numeric_candidates:
+            raise RuntimeError(f"Could not identify ratio column in Cboe archive: {cols}")
+        ratio_col = numeric_candidates[-1]
+
+    dates = pd.to_datetime(df[date_col], errors="coerce")
+    ratios = pd.to_numeric(df[ratio_col], errors="coerce")
+
+    out: list[dict[str, Any]] = []
+    for dt, value in zip(dates, ratios):
+        if pd.isna(dt) or pd.isna(value):
+            continue
+        if not (0.05 <= float(value) <= 5.0):
+            continue
+        out.append(
+            {
+                "date": pd.Timestamp(dt).date().isoformat(),
+                "value": round(float(value), 4),
+                "updated_at": now_iso(),
+                "source": CBOE_EQUITY_PC_HISTORY_URL,
+                "reference_history": True,
+            }
+        )
+
+    if len(out) < 20:
+        raise RuntimeError(
+            f"Cboe archive parser found too few observations ({len(out)}); columns={cols}"
+        )
+    return out
 
 
 def merge_records(
