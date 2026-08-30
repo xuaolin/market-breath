@@ -1,1 +1,189 @@
-{"put_call": [], "aaii": []}
+{
+  "put_call": [
+    {
+      "date": "2026-08-30",
+      "value": 0.62,
+      "updated_at": "2026-08-30T20:40:13Z",
+      "source": "https://www.cboe.com/us/options/market_statistics/daily/"
+    }
+  ],
+  "aaii": [
+    {
+      "date": "2026-04-01",
+      "bullish": 33.6,
+      "bearish": 51.4,
+      "spread": -17.8,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-04-08",
+      "bullish": 35.7,
+      "bearish": 43.0,
+      "spread": -7.3,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-04-15",
+      "bullish": 31.7,
+      "bearish": 42.8,
+      "spread": -11.1,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-04-22",
+      "bullish": 46.0,
+      "bearish": 34.4,
+      "spread": 11.6,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-04-29",
+      "bullish": 38.1,
+      "bearish": 39.7,
+      "spread": -1.6,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-05-06",
+      "bullish": 38.3,
+      "bearish": 33.0,
+      "spread": 5.3,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-05-13",
+      "bullish": 39.3,
+      "bearish": 36.6,
+      "spread": 2.7,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-05-20",
+      "bullish": 31.7,
+      "bearish": 43.6,
+      "spread": -11.9,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-05-27",
+      "bullish": 35.6,
+      "bearish": 41.9,
+      "spread": -6.3,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-06-03",
+      "bullish": 36.3,
+      "bearish": 37.0,
+      "spread": -0.7,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-06-10",
+      "bullish": 30.4,
+      "bearish": 47.7,
+      "spread": -17.3,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-06-17",
+      "bullish": 36.6,
+      "bearish": 39.4,
+      "spread": -2.8,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-06-24",
+      "bullish": 44.9,
+      "bearish": 36.1,
+      "spread": 8.8,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-07-01",
+      "bullish": 31.4,
+      "bearish": 42.3,
+      "spread": -10.9,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-07-08",
+      "bullish": 36.3,
+      "bearish": 37.2,
+      "spread": -0.9,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-07-15",
+      "bullish": 44.9,
+      "bearish": 32.9,
+      "spread": 12.0,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-07-22",
+      "bullish": 29.6,
+      "bearish": 42.3,
+      "spread": -12.7,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-07-29",
+      "bullish": 31.0,
+      "bearish": 42.1,
+      "spread": -11.1,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-08-05",
+      "bullish": 37.0,
+      "bearish": 38.0,
+      "spread": -1.0,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-08-12",
+      "bullish": 34.7,
+      "bearish": 37.9,
+      "spread": -3.2,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-08-19",
+      "bullish": 35.5,
+      "bearish": 39.9,
+      "spread": -4.4,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    },
+    {
+      "date": "2026-08-26",
+      "bullish": 32.9,
+      "bearish": 44.4,
+      "spread": -11.5,
+      "updated_at": "2026-08-30T20:40:14Z",
+      "source": "https://www.aaii.com/sentimentsurvey/sent_results"
+    }
+  ],
+  "updated_at": "2026-08-30T20:40:14Z"
+}

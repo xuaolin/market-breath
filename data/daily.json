@@ -1,10 +1,144 @@
 {
-  "generated_at": null,
-  "status": "awaiting_first_update",
-  "umsi": {"value": null, "regime": "AWAITING DATA", "calculation_quality": 0},
-  "stress": {"value": null, "status": "AWAITING DATA"},
-  "fragility": {"value": null, "status": "AWAITING DATA"},
-  "market": {"sp500": {"value": null, "change_pct": null, "drawdown_52w": null, "status": "AWAITING DATA", "source_date": null, "updated_at": null, "stale": true}},
-  "indicators": {},
-  "sources": []
+  "generated_at": "2026-08-30T20:40:17Z",
+  "status": "ok",
+  "umsi": {
+    "value": 84.1,
+    "regime": "STRONG RISK-ON",
+    "calculation_quality": 0.9
+  },
+  "stress": {
+    "value": 16.1,
+    "status": "LOW",
+    "quality": 1.0
+  },
+  "fragility": {
+    "value": 39.6,
+    "status": "MODERATE",
+    "quality": 0.9
+  },
+  "market": {
+    "sp500": {
+      "value": 7711.76,
+      "change_pct": -0.25,
+      "drawdown_52w": -1.12,
+      "status": "Near 52W High",
+      "source_date": "2026-08-28",
+      "updated_at": "2026-08-30T20:40:17Z",
+      "stale": false
+    }
+  },
+  "indicators": {
+    "term": {
+      "label": "VIX / VIX3M Term Structure",
+      "raw_value": null,
+      "percentile": 9.9,
+      "score": 90.1,
+      "weight": 0.2,
+      "contribution": 18.02,
+      "status": "Complacent",
+      "source_date": "2026-08-28",
+      "updated_at": "2026-08-30T20:40:17Z",
+      "stale": false
+    },
+    "credit": {
+      "label": "High Yield Credit Spread / OAS",
+      "raw_value": null,
+      "percentile": 1.9,
+      "score": 98.1,
+      "weight": 0.2,
+      "contribution": 19.62,
+      "status": "Complacent",
+      "source_date": "2026-08-28",
+      "updated_at": "2026-08-30T20:40:17Z",
+      "stale": false
+    },
+    "breadth": {
+      "label": "Market Breadth (RSP/SPY Proxy)",
+      "raw_value": 0.0279,
+      "percentile": 93.0,
+      "score": 93.0,
+      "weight": 0.2,
+      "contribution": 18.6,
+      "status": "Complacent",
+      "source_date": "2026-08-28",
+      "updated_at": "2026-08-30T20:40:17Z",
+      "stale": false
+    },
+    "vix": {
+      "label": "VIX Level",
+      "raw_value": null,
+      "percentile": 18.5,
+      "score": 81.5,
+      "weight": 0.15,
+      "contribution": 12.22,
+      "status": "Strong Risk-On",
+      "source_date": "2026-08-28",
+      "updated_at": "2026-08-30T20:40:17Z",
+      "stale": false
+    },
+    "put_call": {
+      "label": "Equity Put/Call Ratio",
+      "raw_value": null,
+      "percentile": null,
+      "score": null,
+      "weight": 0.1,
+      "contribution": null,
+      "status": "Unavailable",
+      "source_date": "2026-08-30",
+      "updated_at": "2026-08-30T20:40:17Z",
+      "stale": false
+    },
+    "drawdown": {
+      "label": "S&P 500 52-Week Drawdown",
+      "raw_value": -0.0112,
+      "percentile": 62.1,
+      "score": 62.1,
+      "weight": 0.1,
+      "contribution": 6.21,
+      "status": "Neutral",
+      "source_date": "2026-08-28",
+      "updated_at": "2026-08-30T20:40:17Z",
+      "stale": false
+    },
+    "aaii": {
+      "label": "AAII Bull-Bear Spread",
+      "raw_value": -11.5,
+      "percentile": 21.1,
+      "score": 21.1,
+      "weight": 0.05,
+      "contribution": 1.06,
+      "status": "Fear",
+      "source_date": "2026-08-26",
+      "updated_at": "2026-08-30T20:40:17Z",
+      "stale": false
+    }
+  },
+  "sources": [
+    {
+      "name": "FRED",
+      "url": "https://fred.stlouisfed.org/",
+      "use": "VIX, VIX3M, ICE BofA High Yield OAS"
+    },
+    {
+      "name": "Cboe",
+      "url": "https://www.cboe.com/us/options/market_statistics/daily/",
+      "use": "Equity Put/Call Ratio"
+    },
+    {
+      "name": "AAII",
+      "url": "https://www.aaii.com/sentimentsurvey/sent_results",
+      "use": "Weekly Bull-Bear Sentiment"
+    },
+    {
+      "name": "Stooq",
+      "url": "https://stooq.com/",
+      "use": "Long-run S&P 500 / SPY / RSP price history"
+    },
+    {
+      "name": "Yahoo Finance",
+      "url": "https://finance.yahoo.com/",
+      "use": "Intraday market snapshot fallback"
+    }
+  ],
+  "methodology_note": "Historical UMSI re-normalizes weights when AAII or put/call history is unavailable. calculation_quality reports the share of target weight present before re-normalization."
 }
