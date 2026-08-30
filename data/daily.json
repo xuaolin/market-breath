@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-08-30T20:40:17Z",
+  "generated_at": "2026-08-30T20:54:11Z",
   "status": "ok",
   "umsi": {
-    "value": 84.1,
-    "regime": "STRONG RISK-ON",
-    "calculation_quality": 0.9
+    "value": 77.6,
+    "regime": "RISK-ON",
+    "calculation_quality": 1.0
   },
   "stress": {
-    "value": 16.1,
+    "value": 16.4,
     "status": "LOW",
     "quality": 1.0
   },
   "fragility": {
-    "value": 39.6,
+    "value": 43.3,
     "status": "MODERATE",
-    "quality": 0.9
+    "quality": 1.0
   },
   "market": {
     "sp500": {
@@ -23,93 +23,100 @@
       "drawdown_52w": -1.12,
       "status": "Near 52W High",
       "source_date": "2026-08-28",
-      "updated_at": "2026-08-30T20:40:17Z",
+      "updated_at": "2026-08-30T20:54:11Z",
       "stale": false
     }
   },
   "indicators": {
     "term": {
       "label": "VIX / VIX3M Term Structure",
-      "raw_value": null,
-      "percentile": 9.9,
-      "score": 90.1,
+      "raw_value": 0.8263,
+      "percentile": 11.7,
+      "score": 88.3,
       "weight": 0.2,
-      "contribution": 18.02,
-      "status": "Complacent",
-      "source_date": "2026-08-28",
-      "updated_at": "2026-08-30T20:40:17Z",
+      "effective_weight": 0.2,
+      "contribution": 17.66,
+      "status": "Strong Risk-On",
+      "source_date": "2026-08-27",
+      "updated_at": "2026-08-30T20:54:11Z",
       "stale": false
     },
     "credit": {
       "label": "High Yield Credit Spread / OAS",
-      "raw_value": null,
-      "percentile": 1.9,
-      "score": 98.1,
+      "raw_value": 2.63,
+      "percentile": 2.0,
+      "score": 98.0,
       "weight": 0.2,
-      "contribution": 19.62,
+      "effective_weight": 0.2,
+      "contribution": 19.6,
       "status": "Complacent",
-      "source_date": "2026-08-28",
-      "updated_at": "2026-08-30T20:40:17Z",
+      "source_date": "2026-08-27",
+      "updated_at": "2026-08-30T20:54:11Z",
       "stale": false
     },
     "breadth": {
       "label": "Market Breadth (RSP/SPY Proxy)",
-      "raw_value": 0.0279,
-      "percentile": 93.0,
-      "score": 93.0,
+      "raw_value": 0.0179,
+      "percentile": 83.6,
+      "score": 83.6,
       "weight": 0.2,
-      "contribution": 18.6,
-      "status": "Complacent",
+      "effective_weight": 0.2,
+      "contribution": 16.72,
+      "status": "Strong Risk-On",
       "source_date": "2026-08-28",
-      "updated_at": "2026-08-30T20:40:17Z",
+      "updated_at": "2026-08-30T20:54:11Z",
       "stale": false
     },
     "vix": {
       "label": "VIX Level",
-      "raw_value": null,
-      "percentile": 18.5,
-      "score": 81.5,
+      "raw_value": 14.51,
+      "percentile": 17.4,
+      "score": 82.6,
       "weight": 0.15,
-      "contribution": 12.22,
+      "effective_weight": 0.15,
+      "contribution": 12.39,
       "status": "Strong Risk-On",
-      "source_date": "2026-08-28",
-      "updated_at": "2026-08-30T20:40:17Z",
+      "source_date": "2026-08-27",
+      "updated_at": "2026-08-30T20:54:11Z",
       "stale": false
     },
     "put_call": {
       "label": "Equity Put/Call Ratio",
-      "raw_value": null,
-      "percentile": null,
-      "score": null,
+      "raw_value": 0.62,
+      "percentile": 60.0,
+      "score": 40.0,
       "weight": 0.1,
-      "contribution": null,
-      "status": "Unavailable",
-      "source_date": "2026-08-30",
-      "updated_at": "2026-08-30T20:40:17Z",
+      "effective_weight": 0.1,
+      "contribution": 4.0,
+      "status": "Cautious",
+      "source_date": "2026-08-28",
+      "updated_at": "2026-08-30T20:54:11Z",
       "stale": false
     },
     "drawdown": {
       "label": "S&P 500 52-Week Drawdown",
       "raw_value": -0.0112,
-      "percentile": 62.1,
-      "score": 62.1,
+      "percentile": 61.3,
+      "score": 61.3,
       "weight": 0.1,
-      "contribution": 6.21,
+      "effective_weight": 0.1,
+      "contribution": 6.13,
       "status": "Neutral",
       "source_date": "2026-08-28",
-      "updated_at": "2026-08-30T20:40:17Z",
+      "updated_at": "2026-08-30T20:54:11Z",
       "stale": false
     },
     "aaii": {
       "label": "AAII Bull-Bear Spread",
       "raw_value": -11.5,
-      "percentile": 21.1,
-      "score": 21.1,
+      "percentile": 22.7,
+      "score": 22.7,
       "weight": 0.05,
-      "contribution": 1.06,
+      "effective_weight": 0.05,
+      "contribution": 1.14,
       "status": "Fear",
       "source_date": "2026-08-26",
-      "updated_at": "2026-08-30T20:40:17Z",
+      "updated_at": "2026-08-30T20:54:11Z",
       "stale": false
     }
   },
@@ -122,7 +129,7 @@
     {
       "name": "Cboe",
       "url": "https://www.cboe.com/us/options/market_statistics/daily/",
-      "use": "Equity Put/Call Ratio"
+      "use": "Equity Put/Call Ratio; official 2006–2019 reference archive + recent daily bootstrap"
     },
     {
       "name": "AAII",
@@ -132,13 +139,13 @@
     {
       "name": "Stooq",
       "url": "https://stooq.com/",
-      "use": "Long-run S&P 500 / SPY / RSP price history"
+      "use": "Fallback long-run S&P 500 / SPY / RSP price history"
     },
     {
       "name": "Yahoo Finance",
       "url": "https://finance.yahoo.com/",
-      "use": "Intraday market snapshot fallback"
+      "use": "Primary price history and intraday market snapshot"
     }
   ],
-  "methodology_note": "Historical UMSI re-normalizes weights when AAII or put/call history is unavailable. calculation_quality reports the share of target weight present before re-normalization."
+  "methodology_note": "Dense daily indicators use 5-year rolling percentiles. Sparse Cboe put/call and AAII series use percentiles over the last N actual observations, not forward-filled calendar rows. Delayed FRED observations may be carried forward for up to three market rows while retaining the true source_date. calculation_quality reports the target model weight available before re-normalization."
 }
