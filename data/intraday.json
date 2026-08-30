@@ -1,0 +1,7 @@
+{
+  "generated_at": null,
+  "status": "awaiting_first_update",
+  "sp500": {"value": null, "change_pct": null, "source_date": null, "updated_at": null, "stale": true},
+  "vix": {"value": null, "change_pct": null, "source_date": null, "updated_at": null, "stale": true},
+  "vix3m": {"value": null, "change_pct": null, "source_date": null, "updated_at": null, "stale": true}
+}

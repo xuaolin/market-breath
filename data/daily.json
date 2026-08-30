@@ -1,0 +1,10 @@
+{
+  "generated_at": null,
+  "status": "awaiting_first_update",
+  "umsi": {"value": null, "regime": "AWAITING DATA", "calculation_quality": 0},
+  "stress": {"value": null, "status": "AWAITING DATA"},
+  "fragility": {"value": null, "status": "AWAITING DATA"},
+  "market": {"sp500": {"value": null, "change_pct": null, "drawdown_52w": null, "status": "AWAITING DATA", "source_date": null, "updated_at": null, "stale": true}},
+  "indicators": {},
+  "sources": []
+}
