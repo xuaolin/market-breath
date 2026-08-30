@@ -1,0 +1,59 @@
+name: Update UMSI Data
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # Intraday snapshots roughly every 30 minutes during US market hours
+    - cron: "*/30 13-22 * * 1-5"
+
+    # Full daily rebuild after US market close
+    - cron: "15 23 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: umsi-data-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Update intraday snapshot
+        run: python scripts/fetch_intraday.py
+
+      - name: Rebuild daily UMSI and history
+        if: github.event_name == 'workflow_dispatch' || github.event.schedule == '15 23 * * 1-5'
+        run: |
+          python scripts/build_history.py
+          python scripts/calculate_umsi.py
+
+      - name: Commit updated JSON
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add data/
+
+          if git diff --cached --quiet; then
+            echo "No data changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore: update UMSI market data"
+          git push
