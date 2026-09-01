@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-30T20:54:11Z",
+  "generated_at": "2026-09-01T01:50:47Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -35691,10 +35691,18 @@
     },
     {
       "date": "2026-08-28",
-      "umsi": 77.6,
-      "stress": 16.4,
-      "fragility": 43.3,
+      "umsi": 78.1,
+      "stress": 15.6,
+      "fragility": 43.5,
       "sp500": 7711.76,
+      "quality": 1.0
+    },
+    {
+      "date": "2026-08-31",
+      "umsi": 73.9,
+      "stress": 16.5,
+      "fragility": 40.6,
+      "sp500": 7686.14,
       "quality": 1.0
     }
   ],
@@ -35795,7 +35803,7 @@
     },
     {
       "range": "65–80",
-      "observations": 1040,
+      "observations": 1041,
       "return_1m": 0.8,
       "return_3m": 2.9,
       "return_6m": 5.4,
