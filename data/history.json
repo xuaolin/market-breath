@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-01T01:50:47Z",
+  "generated_at": "2026-09-02T01:03:29Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -35195,105 +35195,105 @@
     },
     {
       "date": "2026-06-01",
-      "umsi": 66.6,
+      "umsi": 66.5,
       "stress": 14.9,
-      "fragility": 87.8,
+      "fragility": 88.2,
       "sp500": 7599.96,
       "quality": 0.85
     },
     {
       "date": "2026-06-02",
-      "umsi": 70.0,
+      "umsi": 69.4,
       "stress": 11.9,
-      "fragility": 87.4,
+      "fragility": 88.8,
       "sp500": 7609.78,
       "quality": 0.85
     },
     {
       "date": "2026-06-03",
-      "umsi": 65.1,
-      "stress": 21.1,
-      "fragility": 83.2,
+      "umsi": 64.7,
+      "stress": 21.0,
+      "fragility": 84.3,
       "sp500": 7553.68,
       "quality": 0.85
     },
     {
       "date": "2026-06-04",
       "umsi": 69.1,
-      "stress": 16.3,
+      "stress": 16.2,
       "fragility": 83.8,
       "sp500": 7584.31,
       "quality": 0.85
     },
     {
       "date": "2026-06-05",
-      "umsi": 38.7,
+      "umsi": 38.2,
       "stress": 60.0,
-      "fragility": 51.6,
+      "fragility": 52.7,
       "sp500": 7383.74,
       "quality": 0.85
     },
     {
       "date": "2026-06-08",
-      "umsi": 48.8,
+      "umsi": 47.9,
       "stress": 47.7,
-      "fragility": 57.8,
+      "fragility": 59.8,
       "sp500": 7405.73,
       "quality": 0.85
     },
     {
       "date": "2026-06-09",
-      "umsi": 47.3,
+      "umsi": 47.0,
       "stress": 53.2,
-      "fragility": 49.0,
+      "fragility": 49.6,
       "sp500": 7386.65,
       "quality": 0.85
     },
     {
       "date": "2026-06-10",
-      "umsi": 41.1,
+      "umsi": 41.0,
       "stress": 62.5,
-      "fragility": 41.1,
+      "fragility": 41.3,
       "sp500": 7266.99,
       "quality": 0.85
     },
     {
       "date": "2026-06-11",
-      "umsi": 50.2,
+      "umsi": 51.0,
       "stress": 49.4,
-      "fragility": 51.3,
+      "fragility": 49.8,
       "sp500": 7394.3,
       "quality": 0.85
     },
     {
       "date": "2026-06-12",
-      "umsi": 62.5,
+      "umsi": 61.9,
       "stress": 35.8,
-      "fragility": 55.3,
+      "fragility": 56.4,
       "sp500": 7431.46,
       "quality": 0.85
     },
     {
       "date": "2026-06-15",
-      "umsi": 69.2,
+      "umsi": 69.5,
       "stress": 22.3,
-      "fragility": 69.5,
+      "fragility": 68.9,
       "sp500": 7554.29,
       "quality": 0.85
     },
     {
       "date": "2026-06-16",
-      "umsi": 66.7,
+      "umsi": 66.8,
       "stress": 26.6,
-      "fragility": 66.3,
+      "fragility": 66.1,
       "sp500": 7511.35,
       "quality": 0.85
     },
     {
       "date": "2026-06-17",
-      "umsi": 54.8,
+      "umsi": 55.0,
       "stress": 41.2,
-      "fragility": 58.4,
+      "fragility": 58.0,
       "sp500": 7420.1,
       "quality": 0.85
     },
@@ -35301,39 +35301,39 @@
       "date": "2026-06-18",
       "umsi": 65.8,
       "stress": 25.5,
-      "fragility": 70.1,
+      "fragility": 70.2,
       "sp500": 7500.58,
       "quality": 0.85
     },
     {
       "date": "2026-06-22",
-      "umsi": 58.7,
-      "stress": 34.7,
-      "fragility": 64.1,
+      "umsi": 59.1,
+      "stress": 34.6,
+      "fragility": 63.3,
       "sp500": 7472.79,
       "quality": 0.85
     },
     {
       "date": "2026-06-23",
-      "umsi": 49.5,
+      "umsi": 49.3,
       "stress": 50.5,
-      "fragility": 48.8,
+      "fragility": 49.3,
       "sp500": 7365.46,
       "quality": 0.85
     },
     {
       "date": "2026-06-24",
-      "umsi": 51.9,
-      "stress": 48.6,
-      "fragility": 47.8,
+      "umsi": 52.3,
+      "stress": 48.5,
+      "fragility": 47.0,
       "sp500": 7358.22,
       "quality": 0.85
     },
     {
       "date": "2026-06-25",
-      "umsi": 50.0,
+      "umsi": 50.4,
       "stress": 51.2,
-      "fragility": 45.5,
+      "fragility": 44.8,
       "sp500": 7357.49,
       "quality": 0.85
     },
@@ -35341,23 +35341,23 @@
       "date": "2026-06-26",
       "umsi": 50.8,
       "stress": 50.0,
-      "fragility": 46.9,
+      "fragility": 46.8,
       "sp500": 7354.02,
       "quality": 0.85
     },
     {
       "date": "2026-06-29",
-      "umsi": 55.4,
+      "umsi": 54.6,
       "stress": 44.1,
-      "fragility": 49.7,
+      "fragility": 51.6,
       "sp500": 7440.43,
       "quality": 0.85
     },
     {
       "date": "2026-06-30",
-      "umsi": 62.6,
+      "umsi": 63.0,
       "stress": 32.2,
-      "fragility": 60.6,
+      "fragility": 59.8,
       "sp500": 7499.36,
       "quality": 0.85
     },
@@ -35371,9 +35371,9 @@
     },
     {
       "date": "2026-07-02",
-      "umsi": 68.6,
+      "umsi": 68.4,
       "stress": 28.3,
-      "fragility": 56.8,
+      "fragility": 57.3,
       "sp500": 7483.24,
       "quality": 0.85
     },
@@ -35381,125 +35381,125 @@
       "date": "2026-07-06",
       "umsi": 73.0,
       "stress": 21.4,
-      "fragility": 62.3,
+      "fragility": 62.4,
       "sp500": 7537.43,
       "quality": 0.85
     },
     {
       "date": "2026-07-07",
-      "umsi": 71.1,
+      "umsi": 70.5,
       "stress": 25.7,
-      "fragility": 56.7,
+      "fragility": 57.8,
       "sp500": 7503.85,
       "quality": 0.85
     },
     {
       "date": "2026-07-08",
-      "umsi": 64.5,
+      "umsi": 64.0,
       "stress": 33.0,
-      "fragility": 54.6,
+      "fragility": 55.5,
       "sp500": 7482.71,
       "quality": 0.85
     },
     {
       "date": "2026-07-09",
-      "umsi": 73.0,
+      "umsi": 72.8,
       "stress": 21.6,
-      "fragility": 61.2,
+      "fragility": 61.6,
       "sp500": 7543.64,
       "quality": 0.85
     },
     {
       "date": "2026-07-10",
-      "umsi": 78.3,
-      "stress": 15.2,
-      "fragility": 62.8,
+      "umsi": 77.5,
+      "stress": 15.3,
+      "fragility": 64.5,
       "sp500": 7575.39,
       "quality": 0.85
     },
     {
       "date": "2026-07-13",
-      "umsi": 66.4,
+      "umsi": 65.1,
       "stress": 33.8,
-      "fragility": 48.0,
+      "fragility": 51.0,
       "sp500": 7515.34,
       "quality": 0.85
     },
     {
       "date": "2026-07-14",
-      "umsi": 69.1,
+      "umsi": 69.4,
       "stress": 28.3,
-      "fragility": 54.4,
+      "fragility": 53.9,
       "sp500": 7543.59,
       "quality": 0.85
     },
     {
       "date": "2026-07-15",
-      "umsi": 75.2,
+      "umsi": 75.3,
       "stress": 19.2,
-      "fragility": 60.6,
+      "fragility": 60.3,
       "sp500": 7572.4,
       "quality": 0.85
     },
     {
       "date": "2026-07-16",
-      "umsi": 69.1,
+      "umsi": 69.5,
       "stress": 29.7,
-      "fragility": 51.5,
+      "fragility": 50.6,
       "sp500": 7533.77,
       "quality": 0.85
     },
     {
       "date": "2026-07-17",
-      "umsi": 56.8,
+      "umsi": 56.5,
       "stress": 46.4,
-      "fragility": 40.9,
+      "fragility": 41.4,
       "sp500": 7457.69,
       "quality": 0.85
     },
     {
       "date": "2026-07-20",
-      "umsi": 57.7,
-      "stress": 45.2,
-      "fragility": 41.0,
+      "umsi": 57.3,
+      "stress": 45.3,
+      "fragility": 41.7,
       "sp500": 7443.28,
       "quality": 0.85
     },
     {
       "date": "2026-07-21",
-      "umsi": 65.5,
+      "umsi": 65.8,
       "stress": 33.0,
-      "fragility": 51.2,
+      "fragility": 50.7,
       "sp500": 7509.2,
       "quality": 0.85
     },
     {
       "date": "2026-07-22",
-      "umsi": 71.0,
+      "umsi": 69.7,
       "stress": 28.3,
-      "fragility": 50.5,
+      "fragility": 53.3,
       "sp500": 7498.96,
       "quality": 0.85
     },
     {
       "date": "2026-07-23",
-      "umsi": 57.4,
-      "stress": 47.7,
-      "fragility": 37.0,
+      "umsi": 57.2,
+      "stress": 47.6,
+      "fragility": 37.6,
       "sp500": 7408.3,
       "quality": 0.85
     },
     {
       "date": "2026-07-24",
-      "umsi": 59.9,
+      "umsi": 59.2,
       "stress": 47.4,
-      "fragility": 32.2,
+      "fragility": 33.8,
       "sp500": 7411.98,
       "quality": 0.85
     },
     {
       "date": "2026-07-27",
-      "umsi": 59.0,
+      "umsi": 59.1,
       "stress": 50.6,
       "fragility": 26.5,
       "sp500": 7413.18,
@@ -35507,65 +35507,65 @@
     },
     {
       "date": "2026-07-28",
-      "umsi": 60.6,
+      "umsi": 60.8,
       "stress": 49.4,
-      "fragility": 25.9,
+      "fragility": 25.6,
       "sp500": 7428.78,
       "quality": 0.85
     },
     {
       "date": "2026-07-29",
-      "umsi": 52.1,
+      "umsi": 51.9,
       "stress": 62.0,
-      "fragility": 17.3,
+      "fragility": 17.7,
       "sp500": 7316.15,
       "quality": 0.85
     },
     {
       "date": "2026-07-30",
-      "umsi": 66.8,
-      "stress": 40.8,
-      "fragility": 32.2,
+      "umsi": 66.9,
+      "stress": 40.7,
+      "fragility": 32.1,
       "sp500": 7437.63,
       "quality": 0.85
     },
     {
       "date": "2026-07-31",
-      "umsi": 73.2,
+      "umsi": 72.9,
       "stress": 30.0,
-      "fragility": 42.6,
+      "fragility": 43.3,
       "sp500": 7489.72,
       "quality": 0.85
     },
     {
       "date": "2026-08-03",
-      "umsi": 78.8,
-      "stress": 21.3,
-      "fragility": 46.5,
+      "umsi": 78.1,
+      "stress": 21.2,
+      "fragility": 48.1,
       "sp500": 7600.5,
       "quality": 0.85
     },
     {
       "date": "2026-08-04",
-      "umsi": 79.3,
+      "umsi": 77.6,
       "stress": 21.1,
-      "fragility": 45.3,
+      "fragility": 49.1,
       "sp500": 7736.52,
       "quality": 0.85
     },
     {
       "date": "2026-08-05",
-      "umsi": 81.7,
+      "umsi": 80.8,
       "stress": 19.9,
-      "fragility": 46.1,
+      "fragility": 48.1,
       "sp500": 7723.55,
       "quality": 0.85
     },
     {
       "date": "2026-08-06",
-      "umsi": 85.6,
+      "umsi": 84.4,
       "stress": 15.6,
-      "fragility": 47.6,
+      "fragility": 50.2,
       "sp500": 7709.96,
       "quality": 0.85
     },
@@ -35573,45 +35573,45 @@
       "date": "2026-08-07",
       "umsi": 90.1,
       "stress": 9.0,
-      "fragility": 49.4,
+      "fragility": 49.2,
       "sp500": 7757.64,
       "quality": 0.85
     },
     {
       "date": "2026-08-10",
-      "umsi": 87.3,
+      "umsi": 86.5,
       "stress": 14.8,
-      "fragility": 45.3,
+      "fragility": 47.0,
       "sp500": 7753.11,
       "quality": 0.85
     },
     {
       "date": "2026-08-11",
-      "umsi": 86.7,
+      "umsi": 86.8,
       "stress": 16.3,
-      "fragility": 44.2,
+      "fragility": 43.9,
       "sp500": 7728.2,
       "quality": 0.85
     },
     {
       "date": "2026-08-12",
-      "umsi": 87.7,
+      "umsi": 87.5,
       "stress": 11.9,
-      "fragility": 46.4,
+      "fragility": 46.8,
       "sp500": 7748.5,
       "quality": 0.9
     },
     {
       "date": "2026-08-13",
-      "umsi": 89.0,
+      "umsi": 89.5,
       "stress": 8.6,
-      "fragility": 48.5,
+      "fragility": 47.6,
       "sp500": 7798.99,
       "quality": 0.9
     },
     {
       "date": "2026-08-14",
-      "umsi": 89.1,
+      "umsi": 89.2,
       "stress": 9.9,
       "fragility": 52.4,
       "sp500": 7785.76,
@@ -35619,49 +35619,49 @@
     },
     {
       "date": "2026-08-17",
-      "umsi": 77.8,
-      "stress": 16.1,
-      "fragility": 45.5,
+      "umsi": 78.4,
+      "stress": 16.2,
+      "fragility": 44.2,
       "sp500": 7745.06,
       "quality": 1.0
     },
     {
       "date": "2026-08-18",
-      "umsi": 73.8,
-      "stress": 23.7,
-      "fragility": 43.6,
+      "umsi": 74.2,
+      "stress": 23.6,
+      "fragility": 42.7,
       "sp500": 7691.76,
       "quality": 1.0
     },
     {
       "date": "2026-08-19",
-      "umsi": 83.2,
-      "stress": 18.3,
-      "fragility": 49.7,
+      "umsi": 83.6,
+      "stress": 18.4,
+      "fragility": 48.9,
       "sp500": 7707.98,
       "quality": 1.0
     },
     {
       "date": "2026-08-20",
-      "umsi": 75.3,
-      "stress": 28.0,
-      "fragility": 43.8,
+      "umsi": 75.5,
+      "stress": 27.9,
+      "fragility": 43.6,
       "sp500": 7641.16,
       "quality": 1.0
     },
     {
       "date": "2026-08-21",
-      "umsi": 83.2,
+      "umsi": 83.0,
       "stress": 20.2,
-      "fragility": 47.7,
+      "fragility": 48.2,
       "sp500": 7674.37,
       "quality": 1.0
     },
     {
       "date": "2026-08-24",
-      "umsi": 70.4,
-      "stress": 27.4,
-      "fragility": 34.5,
+      "umsi": 70.1,
+      "stress": 27.3,
+      "fragility": 35.1,
       "sp500": 7652.86,
       "quality": 1.0
     },
@@ -35675,17 +35675,17 @@
     },
     {
       "date": "2026-08-26",
-      "umsi": 69.2,
+      "umsi": 73.7,
       "stress": 22.9,
-      "fragility": 55.5,
+      "fragility": 36.7,
       "sp500": 7675.7,
-      "quality": 0.8
+      "quality": 1.0
     },
     {
       "date": "2026-08-27",
-      "umsi": 84.3,
+      "umsi": 84.5,
       "stress": 15.5,
-      "fragility": 48.3,
+      "fragility": 48.0,
       "sp500": 7730.99,
       "quality": 1.0
     },
@@ -35693,16 +35693,24 @@
       "date": "2026-08-28",
       "umsi": 78.1,
       "stress": 15.6,
-      "fragility": 43.5,
+      "fragility": 43.7,
       "sp500": 7711.76,
       "quality": 1.0
     },
     {
       "date": "2026-08-31",
-      "umsi": 73.9,
-      "stress": 16.5,
-      "fragility": 40.6,
+      "umsi": 69.3,
+      "stress": 21.8,
+      "fragility": 40.0,
       "sp500": 7686.14,
+      "quality": 1.0
+    },
+    {
+      "date": "2026-09-01",
+      "umsi": 68.4,
+      "stress": 23.2,
+      "fragility": 39.4,
+      "sp500": 7631.47,
       "quality": 1.0
     }
   ],
@@ -35795,7 +35803,7 @@
     },
     {
       "range": "45–65",
-      "observations": 1697,
+      "observations": 1698,
       "return_1m": 0.8,
       "return_3m": 2.6,
       "return_6m": 6.0,
