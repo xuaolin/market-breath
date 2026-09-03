@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-02T01:03:29Z",
+  "generated_at": "2026-09-03T01:08:38Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -35707,11 +35707,19 @@
     },
     {
       "date": "2026-09-01",
-      "umsi": 68.4,
-      "stress": 23.2,
-      "fragility": 39.4,
+      "umsi": 60.7,
+      "stress": 34.3,
+      "fragility": 34.7,
       "sp500": 7631.47,
       "quality": 1.0
+    },
+    {
+      "date": "2026-09-02",
+      "umsi": 65.8,
+      "stress": 33.5,
+      "fragility": 54.4,
+      "sp500": 7666.6,
+      "quality": 0.8
     }
   ],
   "events": [
@@ -35803,7 +35811,7 @@
     },
     {
       "range": "45–65",
-      "observations": 1698,
+      "observations": 1699,
       "return_1m": 0.8,
       "return_3m": 2.6,
       "return_6m": 6.0,
