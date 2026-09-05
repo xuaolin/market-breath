@@ -1,57 +1,57 @@
 {
-  "generated_at": "2026-09-04T01:01:21Z",
+  "generated_at": "2026-09-05T01:00:38Z",
   "status": "ok",
   "umsi": {
-    "value": 78.2,
-    "regime": "RISK-ON",
+    "value": 84.5,
+    "regime": "RISK-ON / COMPLACENT",
     "calculation_quality": 0.8
   },
   "stress": {
-    "value": 22.1,
+    "value": 15.5,
     "status": "LOW",
     "quality": 1.0
   },
   "fragility": {
-    "value": 72.2,
-    "status": "ELEVATED",
+    "value": 76.7,
+    "status": "HIGH",
     "quality": 0.6
   },
   "market": {
     "sp500": {
-      "value": 7747.71,
-      "change_pct": 1.06,
-      "drawdown_52w": -0.66,
+      "value": 7718.6,
+      "change_pct": -0.38,
+      "drawdown_52w": -1.03,
       "status": "Near 52W High",
-      "source_date": "2026-09-03",
-      "updated_at": "2026-09-04T01:01:21Z",
+      "source_date": "2026-09-04",
+      "updated_at": "2026-09-05T01:00:38Z",
       "stale": false
     }
   },
   "indicators": {
     "term": {
       "label": "VIX / VIX3M Term Structure",
-      "raw_value": 0.8573,
-      "percentile": 31.2,
-      "score": 68.8,
+      "raw_value": 0.822,
+      "percentile": 9.9,
+      "score": 90.1,
       "weight": 0.2,
       "effective_weight": 0.25,
-      "contribution": 17.2,
-      "status": "Risk-On",
-      "source_date": "2026-09-02",
-      "updated_at": "2026-09-04T01:01:21Z",
+      "contribution": 22.52,
+      "status": "Complacent",
+      "source_date": "2026-09-03",
+      "updated_at": "2026-09-05T01:00:38Z",
       "stale": false
     },
     "credit": {
       "label": "High Yield Credit Spread / OAS",
-      "raw_value": 2.66,
-      "percentile": 5.4,
-      "score": 94.6,
+      "raw_value": 2.65,
+      "percentile": 3.7,
+      "score": 96.3,
       "weight": 0.2,
       "effective_weight": 0.25,
-      "contribution": 23.65,
+      "contribution": 24.07,
       "status": "Complacent",
-      "source_date": "2026-09-02",
-      "updated_at": "2026-09-04T01:01:21Z",
+      "source_date": "2026-09-03",
+      "updated_at": "2026-09-05T01:00:38Z",
       "stale": false
     },
     "breadth": {
@@ -63,21 +63,21 @@
       "effective_weight": null,
       "contribution": null,
       "status": "Unavailable",
-      "source_date": "2026-09-03",
-      "updated_at": "2026-09-04T01:01:21Z",
+      "source_date": "2026-09-04",
+      "updated_at": "2026-09-05T01:00:38Z",
       "stale": false
     },
     "vix": {
       "label": "VIX Level",
-      "raw_value": 15.2,
-      "percentile": 23.5,
-      "score": 76.5,
+      "raw_value": 14.32,
+      "percentile": 15.6,
+      "score": 84.4,
       "weight": 0.15,
       "effective_weight": 0.1875,
-      "contribution": 14.34,
-      "status": "Risk-On",
-      "source_date": "2026-09-02",
-      "updated_at": "2026-09-04T01:01:21Z",
+      "contribution": 15.82,
+      "status": "Strong Risk-On",
+      "source_date": "2026-09-03",
+      "updated_at": "2026-09-05T01:00:38Z",
       "stale": false
     },
     "put_call": {
@@ -90,20 +90,20 @@
       "contribution": 9.38,
       "status": "Risk-On",
       "source_date": "2026-09-02",
-      "updated_at": "2026-09-04T01:01:21Z",
+      "updated_at": "2026-09-05T01:00:38Z",
       "stale": false
     },
     "drawdown": {
       "label": "S&P 500 52-Week Drawdown",
-      "raw_value": -0.0066,
-      "percentile": 70.3,
-      "score": 70.3,
+      "raw_value": -0.0103,
+      "percentile": 62.7,
+      "score": 62.7,
       "weight": 0.1,
       "effective_weight": 0.125,
-      "contribution": 8.79,
-      "status": "Risk-On",
-      "source_date": "2026-09-03",
-      "updated_at": "2026-09-04T01:01:21Z",
+      "contribution": 7.84,
+      "status": "Neutral",
+      "source_date": "2026-09-04",
+      "updated_at": "2026-09-05T01:00:38Z",
       "stale": false
     },
     "aaii": {
@@ -116,7 +116,7 @@
       "contribution": 4.89,
       "status": "Risk-On",
       "source_date": "2026-09-02",
-      "updated_at": "2026-09-04T01:01:21Z",
+      "updated_at": "2026-09-05T01:00:38Z",
       "stale": false
     }
   },
