@@ -72,6 +72,7 @@
               <button type="button" class="series-chip active" data-series="UMSI" aria-pressed="true" title="Toggle UMSI line">UMSI</button>
               <button type="button" class="series-chip stress" data-series="Stress" aria-pressed="false" title="Overlay Stress (0-100)">Stress</button>
               <button type="button" class="series-chip fragility" data-series="Fragility" aria-pressed="false" title="Overlay Fragility (0-100)">Fragility</button>
+              <button type="button" class="series-chip spx" data-series="SPX" aria-pressed="false" title="Overlay S&amp;P 500 on right axis">SPX</button>
             </div>
             <div class="range-buttons">
               <button data-range="1Y">1Y</button><button data-range="3Y">3Y</button><button data-range="5Y" class="active">5Y</button><button data-range="10Y">10Y</button><button data-range="MAX">MAX</button>
@@ -83,14 +84,15 @@
           <span class="hint-key">Orange markers</span> = named events ·
           Drag to brush · Shift+drag pan · Ctrl+wheel zoom · Esc closes detail
         </div>
+        <div id="chartFocusBanner" class="chart-focus-banner" hidden></div>
         <div class="panel-body chart-wrap"><canvas id="historyChart" aria-label="UMSI history chart with brush zoom" role="img"></canvas></div>
-        <div class="chart-hint">Series chips / legend toggle Stress &amp; Fragility overlays (off by default). Esc closes the day detail panel.</div>
+        <div class="chart-hint">Series chips / legend toggle Stress, Fragility &amp; SPX overlays (off by default). Esc closes the day detail panel / clears indicator focus.</div>
         <div id="rangeSummary" class="range-summary" hidden></div>
         <div id="eventDetail" class="event-detail" hidden aria-hidden="true"></div>
       </div>
 
       <div class="panel">
-        <div class="panel-header"><div class="panel-title">Core Indicators</div><div class="panel-subtitle">Higher score = more risk-on</div></div>
+        <div class="panel-header"><div class="panel-title">Core Indicators</div><div class="panel-subtitle">Higher score = more risk-on · click row to focus chart</div></div>
         <div class="panel-body" style="padding:0; overflow:auto; max-height:420px;">
           <table id="indicatorTable">
             <thead><tr><th>Indicator</th><th>Current</th><th>Hist. %ile</th><th>Score</th><th>Weight</th><th>Contribution</th><th>Status</th></tr></thead>
@@ -102,7 +104,16 @@
 
     <section class="grid-2">
       <div class="panel">
-        <div class="panel-header"><div class="panel-title">Forward Returns by UMSI Zone</div><div class="panel-subtitle">Stay ≥5d · mean / σ / %+ / excess vs buy-and-hold · n&lt;30 grey</div></div>
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Forward Returns by UMSI Zone</div>
+            <div class="panel-subtitle">Stay ≥5d · mean / σ / %+ / excess vs buy-and-hold · n&lt;30 grey</div>
+          </div>
+          <label class="sync-chip" title="Recompute forward returns using only points in the brushed chart window">
+            <input type="checkbox" id="syncForwardToggle" />
+            <span>Sync to chart window</span>
+          </label>
+        </div>
         <div id="forwardRangeNote" class="panel-note" hidden></div>
         <div class="panel-body" style="padding:0;">
           <table id="forwardTable"><thead><tr><th>UMSI Zone</th><th>Obs.</th><th>1M</th><th>3M</th><th>6M</th><th>12M</th></tr></thead><tbody></tbody></table>
