@@ -9,6 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.2.0/dist/chartjs-plugin-zoom.min.js"></script>
 </head>
 <body>
   <main class="shell">
@@ -69,7 +71,10 @@
             <button data-range="1Y">1Y</button><button data-range="3Y">3Y</button><button data-range="5Y" class="active">5Y</button><button data-range="10Y">10Y</button><button data-range="MAX">MAX</button>
           </div>
         </div>
-        <div class="panel-body chart-wrap"><canvas id="historyChart"></canvas></div>
+        <div class="panel-body chart-wrap"><canvas id="historyChart" aria-label="UMSI history chart with brush zoom" role="img"></canvas></div>
+        <div class="chart-hint">Drag on the chart to brush a date range · Click orange event markers for detail · Shift+drag to pan · Ctrl+wheel to zoom</div>
+        <div id="rangeSummary" class="range-summary" hidden></div>
+        <div id="eventDetail" class="event-detail" hidden aria-hidden="true"></div>
       </div>
 
       <div class="panel">
@@ -86,6 +91,7 @@
     <section class="grid-2">
       <div class="panel">
         <div class="panel-header"><div class="panel-title">Forward Returns by UMSI Zone</div><div class="panel-subtitle">Average S&amp;P 500 price return after signal</div></div>
+        <div id="forwardRangeNote" class="panel-note" hidden></div>
         <div class="panel-body" style="padding:0;">
           <table id="forwardTable"><thead><tr><th>UMSI Zone</th><th>Obs.</th><th>1M</th><th>3M</th><th>6M</th><th>12M</th></tr></thead><tbody></tbody></table>
         </div>
