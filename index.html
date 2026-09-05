@@ -67,12 +67,24 @@
             <div class="panel-title">UMSI Historical Regime</div>
             <div class="panel-subtitle">&lt;15 Extreme Fear · &gt;90 Extreme Complacency</div>
           </div>
-          <div class="range-buttons">
-            <button data-range="1Y">1Y</button><button data-range="3Y">3Y</button><button data-range="5Y" class="active">5Y</button><button data-range="10Y">10Y</button><button data-range="MAX">MAX</button>
+          <div class="chart-controls">
+            <div class="series-chips" role="group" aria-label="Series visibility">
+              <button type="button" class="series-chip active" data-series="UMSI" aria-pressed="true" title="Toggle UMSI line">UMSI</button>
+              <button type="button" class="series-chip stress" data-series="Stress" aria-pressed="false" title="Overlay Stress (0-100)">Stress</button>
+              <button type="button" class="series-chip fragility" data-series="Fragility" aria-pressed="false" title="Overlay Fragility (0-100)">Fragility</button>
+            </div>
+            <div class="range-buttons">
+              <button data-range="1Y">1Y</button><button data-range="3Y">3Y</button><button data-range="5Y" class="active">5Y</button><button data-range="10Y">10Y</button><button data-range="MAX">MAX</button>
+            </div>
           </div>
         </div>
+        <div class="chart-hint chart-hint-top" role="note">
+          <span class="hint-key">Click any day</span> for metrics + factors ·
+          <span class="hint-key">Orange markers</span> = named events ·
+          Drag to brush · Shift+drag pan · Ctrl+wheel zoom · Esc closes detail
+        </div>
         <div class="panel-body chart-wrap"><canvas id="historyChart" aria-label="UMSI history chart with brush zoom" role="img"></canvas></div>
-        <div class="chart-hint">Drag on the chart to brush a date range · Click orange event markers for detail · Shift+drag to pan · Ctrl+wheel to zoom</div>
+        <div class="chart-hint">Series chips / legend toggle Stress &amp; Fragility overlays (off by default). Esc closes the day detail panel.</div>
         <div id="rangeSummary" class="range-summary" hidden></div>
         <div id="eventDetail" class="event-detail" hidden aria-hidden="true"></div>
       </div>

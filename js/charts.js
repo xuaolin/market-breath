@@ -2,6 +2,20 @@ let historyChart;
 let chartCallbacks = {};
 let activeHistory = null;
 let activeRange = "5Y";
+let pointerDown = null;
+
+/** Series visibility: UMSI on by default; Stress/Fragility start OFF. */
+let seriesVisibility = {
+  UMSI: true,
+  Stress: false,
+  Fragility: false,
+};
+
+const SERIES_META = {
+  UMSI: { borderColor: "#9ee7ff", backgroundColor: "rgba(158,231,255,.03)", yKey: "umsi" },
+  Stress: { borderColor: "#ff8c42", backgroundColor: "rgba(255,140,66,.03)", yKey: "stress" },
+  Fragility: { borderColor: "#a55eea", backgroundColor: "rgba(165,94,234,.03)", yKey: "fragility" },
+};
 
 const rangeDays = {
   "1Y": 365,
@@ -150,6 +164,48 @@ function emitRangeChange(chart) {
   });
 }
 
+function emitVisibilityChange() {
+  if (typeof chartCallbacks.onSeriesVisibilityChange === "function") {
+    chartCallbacks.onSeriesVisibilityChange({ ...seriesVisibility });
+  }
+}
+
+export function getSeriesVisibility() {
+  return { ...seriesVisibility };
+}
+
+/**
+ * Toggle or set visibility for UMSI / Stress / Fragility line datasets.
+ * @param {string} name - "UMSI" | "Stress" | "Fragility"
+ * @param {boolean} [visible] - if omitted, toggles
+ */
+export function setSeriesVisibility(name, visible) {
+  if (!(name in seriesVisibility)) return seriesVisibility;
+  seriesVisibility[name] = visible == null ? !seriesVisibility[name] : Boolean(visible);
+
+  if (historyChart) {
+    historyChart.data.datasets.forEach((ds) => {
+      if (ds.label === name && ds._seriesKey) {
+        ds.hidden = !seriesVisibility[name];
+      }
+    });
+    historyChart.update("none");
+  }
+
+  emitVisibilityChange();
+  syncSeriesChips();
+  return { ...seriesVisibility };
+}
+
+function syncSeriesChips() {
+  document.querySelectorAll("[data-series]").forEach((chip) => {
+    const key = chip.dataset.series;
+    const on = Boolean(seriesVisibility[key]);
+    chip.classList.toggle("active", on);
+    chip.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
 export function getHistoryChart() {
   return historyChart;
 }
@@ -171,6 +227,38 @@ function shortEventLabel(name) {
     .replace("Q4 Selloff", "Q4 Selloff");
 }
 
+function buildLinePoints(filtered, yKey) {
+  return filtered.map((p) => ({
+    x: toTs(p.date),
+    y: p[yKey],
+    date: p.date,
+    umsi: p.umsi,
+    stress: p.stress,
+    fragility: p.fragility,
+    sp500: p.sp500,
+    quality: p.quality,
+    raw: p,
+  }));
+}
+
+function firePointDetail(rawPoint, history) {
+  if (!rawPoint || typeof chartCallbacks.onEventClick !== "function") return;
+  const date = rawPoint.date;
+  const nearest = findNearestSeriesPoint(history.series, date);
+  const factors = extractFactorBreakdown(nearest);
+  const isNamedEvent = Boolean(rawPoint.event && rawPoint.event !== "UMSI snapshot");
+  const event = isNamedEvent
+    ? (rawPoint.raw || rawPoint)
+    : {
+        date,
+        event: "UMSI snapshot",
+        umsi: nearest?.umsi ?? rawPoint.umsi ?? rawPoint.y,
+        stress: nearest?.stress ?? rawPoint.stress,
+        fragility: nearest?.fragility ?? rawPoint.fragility,
+      };
+  chartCallbacks.onEventClick({ event, nearest, factors });
+}
+
 export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
   const canvas = document.getElementById("historyChart");
   if (!canvas || !history?.series?.length) return;
@@ -189,16 +277,9 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
     return x >= filteredStart && x <= filteredEnd;
   });
 
-  const lineData = filtered.map(p => ({
-    x: toTs(p.date),
-    y: p.umsi,
-    date: p.date,
-    stress: p.stress,
-    fragility: p.fragility,
-    sp500: p.sp500,
-    quality: p.quality,
-    raw: p,
-  }));
+  const umsiData = buildLinePoints(filtered, "umsi");
+  const stressData = buildLinePoints(filtered, "stress");
+  const fragilityData = buildLinePoints(filtered, "fragility");
 
   const eventPoints = visibleEvents.map(e => ({
     x: toTs(e.date),
@@ -213,7 +294,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
     raw: e,
   }));
 
-  const latest = lineData.at(-1);
+  const latest = umsiData.at(-1);
 
   const annotations = {
     fearZone: {
@@ -291,21 +372,33 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
 
   if (historyChart) historyChart.destroy();
 
+  const lineDataset = (label) => {
+    const meta = SERIES_META[label];
+    const data =
+      label === "UMSI" ? umsiData : label === "Stress" ? stressData : fragilityData;
+    return {
+      label,
+      _seriesKey: label,
+      data,
+      borderColor: meta.borderColor,
+      backgroundColor: meta.backgroundColor,
+      borderWidth: label === "UMSI" ? 1.8 : 1.4,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      tension: 0.08,
+      fill: false,
+      hidden: !seriesVisibility[label],
+      borderDash: label === "UMSI" ? undefined : label === "Stress" ? [4, 3] : [2, 3],
+    };
+  };
+
   historyChart = new Chart(canvas, {
     type: "line",
     data: {
       datasets: [
-        {
-          label: "UMSI",
-          data: lineData,
-          borderColor: "#9ee7ff",
-          backgroundColor: "rgba(158,231,255,.03)",
-          borderWidth: 1.8,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.08,
-          fill: false,
-        },
+        lineDataset("UMSI"),
+        lineDataset("Stress"),
+        lineDataset("Fragility"),
         {
           type: "scatter",
           label: "Historical Events",
@@ -336,18 +429,56 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
       animation: false,
       interaction: { mode: "nearest", intersect: false },
       onClick(evt, elements) {
-        if (!elements?.length) return;
-        const hit = elements.find((el) => {
-          const ds = historyChart.data.datasets[el.datasetIndex];
-          return ds?.label === "Historical Events";
-        });
-        if (!hit) return;
-        const ds = historyChart.data.datasets[hit.datasetIndex];
-        const raw = ds.data[hit.index];
-        if (!raw || typeof chartCallbacks.onEventClick !== "function") return;
-        const nearest = findNearestSeriesPoint(history.series, raw.date);
-        const factors = extractFactorBreakdown(nearest);
-        chartCallbacks.onEventClick({ event: raw.raw || raw, nearest, factors });
+        // Ignore brush/pan releases that moved more than a few pixels
+        if (pointerDown) {
+          const dx = Math.abs((evt.x ?? 0) - pointerDown.x);
+          const dy = Math.abs((evt.y ?? 0) - pointerDown.y);
+          pointerDown = null;
+          if (dx > 6 || dy > 6) return;
+        }
+        // Prefer Historical Events hit when present
+        if (elements?.length) {
+          const eventHit = elements.find((el) => {
+            const ds = historyChart.data.datasets[el.datasetIndex];
+            return ds?.label === "Historical Events";
+          });
+          if (eventHit) {
+            const ds = historyChart.data.datasets[eventHit.datasetIndex];
+            const raw = ds.data[eventHit.index];
+            firePointDetail(raw, history);
+            return;
+          }
+
+          // Any visible line series (UMSI / Stress / Fragility) or Current
+          const lineHit = elements.find((el) => {
+            const ds = historyChart.data.datasets[el.datasetIndex];
+            return ds && (ds._seriesKey || ds.label === "Current");
+          });
+          if (lineHit) {
+            const ds = historyChart.data.datasets[lineHit.datasetIndex];
+            const raw = ds.data[lineHit.index];
+            firePointDetail(raw, history);
+            return;
+          }
+        }
+
+        // Fallback: nearest UMSI point by x from click (works even with pointRadius 0)
+        const xScale = historyChart.scales?.x;
+        if (!xScale || !umsiData.length) return;
+        const xVal = xScale.getValueForPixel(evt.x);
+        if (xVal == null || Number.isNaN(xVal)) return;
+        let best = umsiData[0];
+        let bestDist = Math.abs(best.x - xVal);
+        for (let i = 1; i < umsiData.length; i++) {
+          const d = Math.abs(umsiData[i].x - xVal);
+          if (d < bestDist) {
+            best = umsiData[i];
+            bestDist = d;
+          }
+        }
+        // Ignore clicks far from any point (~45 calendar days)
+        if (bestDist > 45 * 86400000) return;
+        firePointDetail(best, history);
       },
       scales: {
         x: {
@@ -378,6 +509,25 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
             color: "#c9d2dc",
             boxWidth: 11,
             usePointStyle: true,
+            filter(item) {
+              // Hide Current from legend clutter; keep series + events
+              return item.text !== "Current";
+            },
+          },
+          onClick(e, legendItem, legend) {
+            const chart = legend.chart;
+            const index = legendItem.datasetIndex;
+            const ds = chart.data.datasets[index];
+            if (!ds) return;
+
+            if (ds._seriesKey) {
+              setSeriesVisibility(ds._seriesKey, ds.hidden);
+              return;
+            }
+
+            // Default Chart.js toggle for Historical Events
+            ds.hidden = !ds.hidden;
+            chart.update("none");
           },
         },
         tooltip: {
@@ -401,12 +551,29 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
               if (ctx.dataset.label === "Current") {
                 return `Current UMSI: ${Number(r.y).toFixed(1)}`;
               }
+              if (ctx.dataset._seriesKey === "Stress") {
+                return [
+                  `Stress: ${r.y ?? "—"}`,
+                  `UMSI: ${r.umsi ?? "—"}`,
+                  `Fragility: ${r.fragility ?? "—"}`,
+                  "Click for day detail",
+                ];
+              }
+              if (ctx.dataset._seriesKey === "Fragility") {
+                return [
+                  `Fragility: ${r.y ?? "—"}`,
+                  `UMSI: ${r.umsi ?? "—"}`,
+                  `Stress: ${r.stress ?? "—"}`,
+                  "Click for day detail",
+                ];
+              }
               return [
                 `UMSI: ${r.y ?? "—"}`,
                 `Stress: ${r.stress ?? "—"}`,
                 `Fragility: ${r.fragility ?? "—"}`,
                 `S&P 500: ${r.sp500 ?? "—"}`,
                 `Model quality: ${r.quality != null ? `${Math.round(r.quality * 100)}%` : "—"}`,
+                "Click for day detail",
               ];
             },
           },
@@ -442,4 +609,14 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
   });
 
   emitRangeChange(historyChart);
+  syncSeriesChips();
+  emitVisibilityChange();
+
+  if (!canvas._umsiPointerBound) {
+    canvas._umsiPointerBound = true;
+    canvas.addEventListener("pointerdown", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      pointerDown = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    });
+  }
 }

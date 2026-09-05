@@ -4,6 +4,8 @@ import {
   resetHistoryZoom,
   findNearestSeriesPoint,
   extractFactorBreakdown,
+  setSeriesVisibility,
+  getSeriesVisibility,
 } from "./charts.js";
 
 async function getJSON(path) {
@@ -346,6 +348,7 @@ function showEventDetail({ event, nearest, factors, history }) {
   const series = history?.series || [];
   const point = nearest || findNearestSeriesPoint(series, event.date);
   const factorList = factors || extractFactorBreakdown(point);
+  const isSnapshot = !event.event || event.event === "UMSI snapshot";
 
   const core = [
     ["UMSI", event.umsi ?? point?.umsi],
@@ -373,14 +376,31 @@ function showEventDetail({ event, nearest, factors, history }) {
           .join("")
       : `<div class="event-factor muted">No per-factor scores in history.json for this date. Showing series / event fields only.</div>`;
 
+  const returnsBlock = isSnapshot
+    ? ""
+    : `
+      <div class="event-detail-section">Forward returns</div>
+      <div class="event-detail-grid compact">
+        ${returns
+          .map(
+            ([k, v]) =>
+              `<div><span class="k">${k}</span><span class="v">${v == null ? "—" : signedPct(v, 1)}</span></div>`
+          )
+          .join("")}
+      </div>`;
+
   panel.hidden = false;
   panel.setAttribute("aria-hidden", "false");
   panel.innerHTML = `
     <div class="event-detail-card" role="dialog" aria-labelledby="eventDetailTitle">
       <div class="event-detail-head">
         <div>
-          <div id="eventDetailTitle" class="event-detail-title">${event.event || "Historical event"}</div>
-          <div class="event-detail-sub">${event.date}${point?.date && point.date !== event.date ? ` · nearest series ${point.date}` : ""}</div>
+          <div id="eventDetailTitle" class="event-detail-title${isSnapshot ? " snapshot" : ""}">${
+            event.event || "UMSI snapshot"
+          }</div>
+          <div class="event-detail-sub">${event.date}${
+            point?.date && point.date !== event.date ? ` · nearest series ${point.date}` : ""
+          }</div>
         </div>
         <button type="button" class="ghost-btn" id="closeEventDetail" aria-label="Close event detail">Close</button>
       </div>
@@ -392,15 +412,7 @@ function showEventDetail({ event, nearest, factors, history }) {
           )
           .join("")}
       </div>
-      <div class="event-detail-section">Forward returns</div>
-      <div class="event-detail-grid compact">
-        ${returns
-          .map(
-            ([k, v]) =>
-              `<div><span class="k">${k}</span><span class="v">${v == null ? "—" : signedPct(v, 1)}</span></div>`
-          )
-          .join("")}
-      </div>
+      ${returnsBlock}
       <div class="event-detail-section">Factor breakdown</div>
       <div class="event-factors">${factorHtml}</div>
     </div>
@@ -420,7 +432,29 @@ function chartCallbacks(history) {
     onRangeChange: updateRangeSummary,
     onEventClick: ({ event, nearest, factors }) =>
       showEventDetail({ event, nearest, factors, history }),
+    onSeriesVisibilityChange: syncSeriesChipState,
   };
+}
+
+function syncSeriesChipState(vis) {
+  const state = vis || getSeriesVisibility();
+  document.querySelectorAll("[data-series]").forEach((chip) => {
+    const key = chip.dataset.series;
+    const on = Boolean(state[key]);
+    chip.classList.toggle("active", on);
+    chip.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+function bindSeriesChips() {
+  document.querySelectorAll("[data-series]").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const key = chip.dataset.series;
+      if (!key) return;
+      setSeriesVisibility(key);
+    });
+  });
+  syncSeriesChipState();
 }
 
 function bindRangeButtons(history) {
@@ -495,6 +529,7 @@ async function main() {
     renderForward(history);
     renderEvents(history);
     renderSources(daily);
+    bindSeriesChips();
     renderHistoryChart(history, "5Y", chartCallbacks(history));
     bindRangeButtons(history);
     bindKeyboardHelp();
