@@ -6,6 +6,9 @@ import {
   extractFactorBreakdown,
   setSeriesVisibility,
   getSeriesVisibility,
+  setIndicatorFocus,
+  clearIndicatorFocus,
+  getIndicatorFocus,
 } from "./charts.js";
 
 async function getJSON(path) {
@@ -36,6 +39,12 @@ const UMSI_BINS = [
   [80, 90],
   [90, 101],
 ];
+
+/** App state for brush-synced forward returns + indicator focus */
+let fullHistory = null;
+let lastRangePayload = null;
+let syncForwardToWindow = false;
+let activeDaily = null;
 
 function zoneIndex(v) {
   if (v == null || Number.isNaN(Number(v))) return null;
@@ -186,12 +195,53 @@ function formatRaw(key, item) {
   return fmt(v, 4);
 }
 
+function syncIndicatorRowHighlight() {
+  const focus = getIndicatorFocus();
+  document.querySelectorAll("#indicatorTable tbody tr.indicator-row").forEach((tr) => {
+    const on = focus && tr.dataset.indicatorKey === focus.key;
+    tr.classList.toggle("indicator-focused", Boolean(on));
+    tr.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+function openIndicatorDayDetail(key, item) {
+  if (!fullHistory?.series?.length) return;
+  const latest = fullHistory.series.at(-1);
+  const nearest = findNearestSeriesPoint(fullHistory.series, latest?.date);
+  const factors = extractFactorBreakdown(nearest);
+  showEventDetail({
+    event: {
+      date: nearest?.date || latest?.date || "—",
+      event: `Focus · ${item?.label || key}`,
+      umsi: nearest?.umsi,
+      stress: nearest?.stress,
+      fragility: nearest?.fragility,
+    },
+    nearest,
+    factors,
+    history: fullHistory,
+    focusNote:
+      item
+        ? `Indicator ${item.label}: score ${fmt(item.score, 1)} · %ile ${fmt(item.percentile, 1)} · ${item.status || "—"} (from daily.json)`
+        : null,
+  });
+}
+
 function renderIndicators(daily) {
   const tbody = document.querySelector("#indicatorTable tbody");
   tbody.innerHTML = "";
+  activeDaily = daily;
 
   Object.entries(daily.indicators || {}).forEach(([key, item]) => {
     const tr = document.createElement("tr");
+    tr.className = "indicator-row";
+    tr.tabIndex = 0;
+    tr.setAttribute("role", "button");
+    tr.dataset.indicatorKey = key;
+    tr.setAttribute(
+      "aria-label",
+      `Focus chart on ${item.label}; score ${fmt(item.score, 1)}`
+    );
     const source = item.source_date || "No source date";
     const stale = item.stale ? " · STALE" : "";
     const effectiveWeight =
@@ -210,8 +260,37 @@ function renderIndicators(daily) {
       <td${effectiveWeight}>${fmt((item.weight || 0) * 100, 0, "%")}</td>
       <td>${fmt(item.contribution, 2)}</td>
       <td>${item.status || "—"}</td>`;
+
+    const activate = () => {
+      const result = setIndicatorFocus({
+        key,
+        label: item.label || key,
+        score: item.score,
+        percentile: item.percentile,
+        status: item.status,
+      });
+      syncIndicatorRowHighlight();
+      if (result) {
+        tr.classList.add("indicator-flash");
+        setTimeout(() => tr.classList.remove("indicator-flash"), 450);
+        openIndicatorDayDetail(key, item);
+        document.getElementById("chartFocusBanner")?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }
+    };
+
+    tr.addEventListener("click", activate);
+    tr.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        activate();
+      }
+    });
     tbody.appendChild(tr);
   });
+  syncIndicatorRowHighlight();
 }
 
 function retCell(v) {
@@ -220,22 +299,13 @@ function retCell(v) {
   return `<span class="${cls}">${signedPct(v, 1)}</span>`;
 }
 
-function renderForward(history) {
+function paintForwardRows(rows, noteText) {
   const tbody = document.querySelector("#forwardTable tbody");
   tbody.innerHTML = "";
-  const computed = computeForwardTable(history.series || []);
-  const rows = computed.rows.length ? computed.rows : (history.forward_returns || []);
   const noteEl = document.getElementById("forwardRangeNote");
-  if (noteEl && computed.rows.length) {
-    const bh = computed.baseline;
-    const bits = ["1M", "3M", "6M", "12M"].map((lab, i) => {
-      const v = [bh["1m"], bh["3m"], bh["6m"], bh["12m"]][i];
-      return v == null ? null : `${lab} BH ${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
-    }).filter(Boolean);
-    noteEl.hidden = false;
-    noteEl.textContent =
-      "First stay ≥5 days in zone vs buy-and-hold. n<30 greyed. " +
-      (bits.length ? `Unconditional BH: ${bits.join(" · ")}.` : "");
+  if (noteEl) {
+    noteEl.hidden = !noteText;
+    if (noteText) noteEl.textContent = noteText;
   }
   rows.forEach((r) => {
     const tr = document.createElement("tr");
@@ -262,6 +332,66 @@ function renderForward(history) {
       `<td>${cell(r.return_12m, r.std_12m, r.hit_12m, r.excess_12m)}</td>`;
     tbody.appendChild(tr);
   });
+}
+
+function fullSampleNote(computed) {
+  const bh = computed.baseline || {};
+  const bits = ["1M", "3M", "6M", "12M"].map((lab, i) => {
+    const v = [bh["1m"], bh["3m"], bh["6m"], bh["12m"]][i];
+    return v == null ? null : `${lab} BH ${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
+  }).filter(Boolean);
+  return (
+    "First stay ≥5 days in zone vs buy-and-hold. n<30 greyed. Full-sample (not filtered by chart brush). " +
+    (bits.length ? `Unconditional BH: ${bits.join(" · ")}.` : "")
+  );
+}
+
+function windowScopedNote(computed, payload) {
+  const start = payload?.summary?.start || payload?.start || "—";
+  const end = payload?.summary?.end || payload?.end || "—";
+  const n = payload?.summary?.count ?? payload?.points?.length ?? "—";
+  const bh = computed.baseline || {};
+  const bits = ["1M", "3M", "6M", "12M"].map((lab, i) => {
+    const v = [bh["1m"], bh["3m"], bh["6m"], bh["12m"]][i];
+    return v == null ? null : `${lab} BH ${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
+  }).filter(Boolean);
+  return (
+    `Window-scoped forward returns · ${start} → ${end} · ${n} obs. ` +
+    "First stay ≥5 days in zone vs window buy-and-hold. n<30 greyed. " +
+    (bits.length ? `Window BH: ${bits.join(" · ")}.` : "")
+  );
+}
+
+function renderForward(history, windowPoints = null) {
+  const series =
+    syncForwardToWindow && windowPoints?.length
+      ? windowPoints
+      : history?.series || [];
+  const computed = computeForwardTable(series);
+  const rows =
+    computed.rows.length
+      ? computed.rows
+      : !syncForwardToWindow
+        ? history?.forward_returns || []
+        : [];
+  let note;
+  if (syncForwardToWindow && windowPoints?.length) {
+    note = windowScopedNote(computed, lastRangePayload || { points: windowPoints });
+  } else if (computed.rows.length) {
+    note = fullSampleNote(computed);
+  } else {
+    note = null;
+  }
+  paintForwardRows(rows, note);
+}
+
+function refreshForwardFromState() {
+  if (!fullHistory) return;
+  if (syncForwardToWindow && lastRangePayload?.points?.length) {
+    renderForward(fullHistory, lastRangePayload.points);
+  } else {
+    renderForward(fullHistory, null);
+  }
 }
 
 function renderEvents(history) {
@@ -312,7 +442,7 @@ function updateRangeSummary(payload) {
   const el = document.getElementById("rangeSummary");
   if (!el || !payload?.summary) return;
   const s = payload.summary;
-  const note = document.getElementById("forwardRangeNote");
+  lastRangePayload = payload;
 
   el.hidden = false;
   el.innerHTML = `
@@ -334,21 +464,26 @@ function updateRangeSummary(payload) {
   const resetBtn = document.getElementById("resetZoomBtn");
   if (resetBtn) resetBtn.addEventListener("click", () => resetHistoryZoom());
 
-  if (note) {
-    note.hidden = false;
-    note.textContent =
-      "Forward-return table remains full-sample (not filtered by chart brush).";
+  if (syncForwardToWindow) {
+    refreshForwardFromState();
+  } else {
+    const note = document.getElementById("forwardRangeNote");
+    if (note && note.hidden) {
+      note.hidden = false;
+      note.textContent =
+        "Forward-return table remains full-sample (not filtered by chart brush). Enable “Sync to chart window” to filter.";
+    }
   }
 }
 
-function showEventDetail({ event, nearest, factors, history }) {
+function showEventDetail({ event, nearest, factors, history, focusNote }) {
   const panel = document.getElementById("eventDetail");
   if (!panel || !event) return;
 
   const series = history?.series || [];
   const point = nearest || findNearestSeriesPoint(series, event.date);
   const factorList = factors || extractFactorBreakdown(point);
-  const isSnapshot = !event.event || event.event === "UMSI snapshot";
+  const isSnapshot = !event.event || event.event === "UMSI snapshot" || String(event.event).startsWith("Focus ·");
 
   const core = [
     ["UMSI", event.umsi ?? point?.umsi],
@@ -376,7 +511,7 @@ function showEventDetail({ event, nearest, factors, history }) {
           .join("")
       : `<div class="event-factor muted">No per-factor scores in history.json for this date. Showing series / event fields only.</div>`;
 
-  const returnsBlock = isSnapshot
+  const returnsBlock = isSnapshot && !event.return_1m
     ? ""
     : `
       <div class="event-detail-section">Forward returns</div>
@@ -388,6 +523,10 @@ function showEventDetail({ event, nearest, factors, history }) {
           )
           .join("")}
       </div>`;
+
+  const focusBlock = focusNote
+    ? `<div class="event-detail-section">Indicator focus</div><div class="event-factor muted">${focusNote}</div>`
+    : "";
 
   panel.hidden = false;
   panel.setAttribute("aria-hidden", "false");
@@ -412,6 +551,7 @@ function showEventDetail({ event, nearest, factors, history }) {
           )
           .join("")}
       </div>
+      ${focusBlock}
       ${returnsBlock}
       <div class="event-detail-section">Factor breakdown</div>
       <div class="event-factors">${factorHtml}</div>
@@ -433,6 +573,7 @@ function chartCallbacks(history) {
     onEventClick: ({ event, nearest, factors }) =>
       showEventDetail({ event, nearest, factors, history }),
     onSeriesVisibilityChange: syncSeriesChipState,
+    onIndicatorFocusChange: () => syncIndicatorRowHighlight(),
   };
 }
 
@@ -457,6 +598,17 @@ function bindSeriesChips() {
   syncSeriesChipState();
 }
 
+function bindForwardSyncToggle() {
+  const toggle = document.getElementById("syncForwardToggle");
+  if (!toggle) return;
+  toggle.checked = false;
+  syncForwardToWindow = false;
+  toggle.addEventListener("change", () => {
+    syncForwardToWindow = Boolean(toggle.checked);
+    refreshForwardFromState();
+  });
+}
+
 function bindRangeButtons(history) {
   document.querySelectorAll("[data-range]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -475,6 +627,11 @@ function bindKeyboardHelp() {
         panel.hidden = true;
         panel.setAttribute("aria-hidden", "true");
         panel.innerHTML = "";
+        return;
+      }
+      if (getIndicatorFocus()) {
+        clearIndicatorFocus();
+        syncIndicatorRowHighlight();
       }
     }
   });
@@ -487,6 +644,9 @@ async function main() {
       getJSON("data/intraday.json"),
       getJSON("data/history.json"),
     ]);
+
+    fullHistory = history;
+    activeDaily = daily;
 
     renderTop(daily, intraday, history);
 
@@ -526,6 +686,7 @@ async function main() {
     }
 
     renderIndicators(daily);
+    bindForwardSyncToggle();
     renderForward(history);
     renderEvents(history);
     renderSources(daily);

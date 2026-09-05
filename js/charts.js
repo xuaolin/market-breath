@@ -3,18 +3,21 @@ let chartCallbacks = {};
 let activeHistory = null;
 let activeRange = "5Y";
 let pointerDown = null;
+let indicatorFocus = null; // { key, label, scoreKey } | null
 
-/** Series visibility: UMSI on by default; Stress/Fragility start OFF. */
+/** Series visibility: UMSI on by default; Stress/Fragility/SPX start OFF. */
 let seriesVisibility = {
   UMSI: true,
   Stress: false,
   Fragility: false,
+  SPX: false,
 };
 
 const SERIES_META = {
-  UMSI: { borderColor: "#9ee7ff", backgroundColor: "rgba(158,231,255,.03)", yKey: "umsi" },
-  Stress: { borderColor: "#ff8c42", backgroundColor: "rgba(255,140,66,.03)", yKey: "stress" },
-  Fragility: { borderColor: "#a55eea", backgroundColor: "rgba(165,94,234,.03)", yKey: "fragility" },
+  UMSI: { borderColor: "#9ee7ff", backgroundColor: "rgba(158,231,255,.03)", yKey: "umsi", yAxisID: "y" },
+  Stress: { borderColor: "#ff8c42", backgroundColor: "rgba(255,140,66,.03)", yKey: "stress", yAxisID: "y" },
+  Fragility: { borderColor: "#a55eea", backgroundColor: "rgba(165,94,234,.03)", yKey: "fragility", yAxisID: "y" },
+  SPX: { borderColor: "rgba(120,180,140,.85)", backgroundColor: "rgba(120,180,140,.04)", yKey: "sp500", yAxisID: "y1" },
 };
 
 const rangeDays = {
@@ -142,6 +145,61 @@ export function extractFactorBreakdown(point) {
   return out;
 }
 
+/** Pull a numeric factor score for indicator key from a history point, if present. */
+export function extractFactorScore(point, indicatorKey) {
+  if (!point || !indicatorKey) return null;
+  const key = String(indicatorKey);
+  const candidates = [
+    point[key],
+    point[`${key}_score`],
+    point.scores?.[key],
+    point.factors?.[key],
+    point.indicators?.[key],
+  ];
+  for (const c of candidates) {
+    if (c == null) continue;
+    if (typeof c === "number" && Number.isFinite(c)) return c;
+    if (typeof c === "object") {
+      const v = c.score ?? c.value;
+      if (v != null && Number.isFinite(Number(v))) return Number(v);
+    }
+  }
+  const breakdown = extractFactorBreakdown(point);
+  const hit = breakdown.find(
+    (f) =>
+      f.key === key ||
+      f.key.endsWith(`.${key}`) ||
+      f.label === key ||
+      String(f.label || "").toLowerCase().includes(key.replace(/_/g, " "))
+  );
+  return hit?.score ?? hit?.value ?? null;
+}
+
+/** True if enough history points expose per-factor scores for this indicator. */
+export function seriesHasFactorScores(series, indicatorKey) {
+  if (!series?.length || !indicatorKey) return false;
+  let hits = 0;
+  const sample = series.length > 80 ? series.filter((_, i) => i % Math.ceil(series.length / 80) === 0) : series;
+  for (const p of sample) {
+    if (extractFactorScore(p, indicatorKey) != null) hits += 1;
+    if (hits >= 8) return true;
+  }
+  return false;
+}
+
+function quartileBounds(values) {
+  const xs = values.filter((v) => v != null && Number.isFinite(Number(v))).map(Number).sort((a, b) => a - b);
+  if (xs.length < 8) return null;
+  const q = (p) => {
+    const idx = (xs.length - 1) * p;
+    const lo = Math.floor(idx);
+    const hi = Math.ceil(idx);
+    if (lo === hi) return xs[lo];
+    return xs[lo] + (xs[hi] - xs[lo]) * (idx - lo);
+  };
+  return { q25: q(0.25), q75: q(0.75) };
+}
+
 function getChartXBounds(chart) {
   const scale = chart.scales?.x;
   if (!scale) return null;
@@ -175,8 +233,8 @@ export function getSeriesVisibility() {
 }
 
 /**
- * Toggle or set visibility for UMSI / Stress / Fragility line datasets.
- * @param {string} name - "UMSI" | "Stress" | "Fragility"
+ * Toggle or set visibility for UMSI / Stress / Fragility / SPX line datasets.
+ * @param {string} name - "UMSI" | "Stress" | "Fragility" | "SPX"
  * @param {boolean} [visible] - if omitted, toggles
  */
 export function setSeriesVisibility(name, visible) {
@@ -189,6 +247,10 @@ export function setSeriesVisibility(name, visible) {
         ds.hidden = !seriesVisibility[name];
       }
     });
+    // Show/hide right axis with SPX
+    if (name === "SPX" && historyChart.options?.scales?.y1) {
+      historyChart.options.scales.y1.display = seriesVisibility.SPX;
+    }
     historyChart.update("none");
   }
 
@@ -208,6 +270,143 @@ function syncSeriesChips() {
 
 export function getHistoryChart() {
   return historyChart;
+}
+
+export function getIndicatorFocus() {
+  return indicatorFocus ? { ...indicatorFocus } : null;
+}
+
+export function clearIndicatorFocus() {
+  indicatorFocus = null;
+  applyIndicatorFocusVisuals();
+  updateFocusBanner(null);
+  if (typeof chartCallbacks.onIndicatorFocusChange === "function") {
+    chartCallbacks.onIndicatorFocusChange(null);
+  }
+}
+
+/**
+ * Emphasize an indicator on the history chart.
+ * If per-factor history exists, bump extreme quartile days; else banner-only.
+ * @returns {{ mode: "factor-extremes"|"banner", count?: number }|null}
+ */
+export function setIndicatorFocus(focus) {
+  if (!focus?.key) {
+    clearIndicatorFocus();
+    return null;
+  }
+  // Toggle off if same key re-selected
+  if (indicatorFocus?.key === focus.key) {
+    clearIndicatorFocus();
+    return null;
+  }
+
+  const series = activeHistory?.series || [];
+  const hasFactors = seriesHasFactorScores(series, focus.key);
+  indicatorFocus = {
+    key: focus.key,
+    label: focus.label || focus.key,
+    score: focus.score,
+    percentile: focus.percentile,
+    status: focus.status,
+    hasFactors,
+  };
+
+  let result = { mode: "banner" };
+  if (hasFactors && historyChart) {
+    const filtered = historyChart.data?.datasets?.find((d) => d._seriesKey === "UMSI")?.data || [];
+    const scores = filtered.map((p) => extractFactorScore(p.raw || p, focus.key));
+    const bounds = quartileBounds(scores);
+    const extremePts = [];
+    if (bounds) {
+      filtered.forEach((p, i) => {
+        const s = scores[i];
+        if (s == null) return;
+        if (s <= bounds.q25 || s >= bounds.q75) {
+          extremePts.push({
+            x: p.x,
+            y: p.y,
+            date: p.date,
+            umsi: p.umsi,
+            stress: p.stress,
+            fragility: p.fragility,
+            sp500: p.sp500,
+            quality: p.quality,
+            factorScore: s,
+            raw: p.raw || p,
+          });
+        }
+      });
+    }
+    applyIndicatorFocusVisuals(extremePts);
+    result = { mode: "factor-extremes", count: extremePts.length };
+  } else {
+    applyIndicatorFocusVisuals([]);
+  }
+
+  updateFocusBanner(indicatorFocus);
+  if (typeof chartCallbacks.onIndicatorFocusChange === "function") {
+    chartCallbacks.onIndicatorFocusChange(indicatorFocus);
+  }
+  return result;
+}
+
+function applyIndicatorFocusVisuals(extremePts = []) {
+  if (!historyChart) return;
+  const dsIdx = historyChart.data.datasets.findIndex((d) => d._focusOverlay);
+  if (dsIdx >= 0) historyChart.data.datasets.splice(dsIdx, 1);
+
+  if (extremePts.length) {
+    historyChart.data.datasets.push({
+      type: "scatter",
+      label: "Factor extremes",
+      _focusOverlay: true,
+      data: extremePts,
+      pointRadius: 3.5,
+      pointHoverRadius: 6,
+      borderColor: "rgba(158,231,255,.9)",
+      borderWidth: 1,
+      backgroundColor: "rgba(245,196,81,.75)",
+      order: 0,
+    });
+  }
+
+  // Subtle pointRadius bump on UMSI for focused state (flash feel without fabricating)
+  historyChart.data.datasets.forEach((ds) => {
+    if (ds._seriesKey === "UMSI") {
+      ds.pointRadius = indicatorFocus ? 1.2 : 0;
+      ds.pointBackgroundColor = indicatorFocus ? "rgba(158,231,255,.35)" : undefined;
+    }
+  });
+
+  historyChart.update("none");
+}
+
+function updateFocusBanner(focus) {
+  const el = document.getElementById("chartFocusBanner");
+  if (!el) return;
+  if (!focus) {
+    el.hidden = true;
+    el.innerHTML = "";
+    return;
+  }
+  const bits = [];
+  if (focus.score != null && Number.isFinite(Number(focus.score))) bits.push(`score ${Number(focus.score).toFixed(1)}`);
+  if (focus.percentile != null && Number.isFinite(Number(focus.percentile))) bits.push(`%ile ${Number(focus.percentile).toFixed(1)}`);
+  if (focus.status) bits.push(focus.status);
+  const modeNote = focus.hasFactors
+    ? " · yellow markers = historical factor extremes (Q1/Q4)"
+    : " · no per-factor history in series; current daily snapshot only";
+  el.hidden = false;
+  el.innerHTML = `
+    <div class="focus-banner-inner">
+      <span class="focus-banner-label">Focus:</span>
+      <span class="focus-banner-name">${focus.label}</span>
+      <span class="focus-banner-meta">${bits.join(" · ")}${modeNote}</span>
+      <button type="button" class="ghost-btn focus-clear-btn" id="clearIndicatorFocusBtn" aria-label="Clear indicator focus">Clear</button>
+    </div>
+  `;
+  document.getElementById("clearIndicatorFocusBtn")?.addEventListener("click", () => clearIndicatorFocus());
 }
 
 export function resetHistoryZoom() {
@@ -280,6 +479,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
   const umsiData = buildLinePoints(filtered, "umsi");
   const stressData = buildLinePoints(filtered, "stress");
   const fragilityData = buildLinePoints(filtered, "fragility");
+  const spxData = buildLinePoints(filtered, "sp500");
 
   const eventPoints = visibleEvents.map(e => ({
     x: toTs(e.date),
@@ -370,25 +570,37 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
     };
   });
 
+  // Preserve focus across re-renders
+  const preservedFocus = indicatorFocus ? { ...indicatorFocus } : null;
+
   if (historyChart) historyChart.destroy();
 
   const lineDataset = (label) => {
     const meta = SERIES_META[label];
     const data =
-      label === "UMSI" ? umsiData : label === "Stress" ? stressData : fragilityData;
+      label === "UMSI" ? umsiData
+        : label === "Stress" ? stressData
+          : label === "Fragility" ? fragilityData
+            : spxData;
     return {
       label,
       _seriesKey: label,
       data,
+      yAxisID: meta.yAxisID,
       borderColor: meta.borderColor,
       backgroundColor: meta.backgroundColor,
-      borderWidth: label === "UMSI" ? 1.8 : 1.4,
+      borderWidth: label === "UMSI" ? 1.8 : label === "SPX" ? 1.15 : 1.4,
       pointRadius: 0,
       pointHoverRadius: 4,
       tension: 0.08,
       fill: false,
       hidden: !seriesVisibility[label],
-      borderDash: label === "UMSI" ? undefined : label === "Stress" ? [4, 3] : [2, 3],
+      borderDash:
+        label === "UMSI" || label === "SPX"
+          ? undefined
+          : label === "Stress"
+            ? [4, 3]
+            : [2, 3],
     };
   };
 
@@ -399,6 +611,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
         lineDataset("UMSI"),
         lineDataset("Stress"),
         lineDataset("Fragility"),
+        lineDataset("SPX"),
         {
           type: "scatter",
           label: "Historical Events",
@@ -449,10 +662,10 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
             return;
           }
 
-          // Any visible line series (UMSI / Stress / Fragility) or Current
+          // Any visible line series (UMSI / Stress / Fragility / SPX) or Current / focus overlay
           const lineHit = elements.find((el) => {
             const ds = historyChart.data.datasets[el.datasetIndex];
-            return ds && (ds._seriesKey || ds.label === "Current");
+            return ds && (ds._seriesKey || ds.label === "Current" || ds._focusOverlay);
           });
           if (lineHit) {
             const ds = historyChart.data.datasets[lineHit.datasetIndex];
@@ -499,8 +712,32 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
         y: {
           min: 0,
           max: 100,
+          position: "left",
           grid: { color: "rgba(255,255,255,.07)" },
           ticks: { color: "#8d9aa9", stepSize: 20 },
+          title: {
+            display: true,
+            text: "UMSI / Stress / Fragility",
+            color: "#6a7a8a",
+            font: { size: 10 },
+          },
+        },
+        y1: {
+          position: "right",
+          display: seriesVisibility.SPX,
+          grid: { drawOnChartArea: false },
+          ticks: {
+            color: "rgba(120,180,140,.9)",
+            callback(v) {
+              return Number(v).toLocaleString(undefined, { maximumFractionDigits: 0 });
+            },
+          },
+          title: {
+            display: true,
+            text: "S&P 500",
+            color: "rgba(120,180,140,.85)",
+            font: { size: 10 },
+          },
         },
       },
       plugins: {
@@ -510,8 +747,8 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
             boxWidth: 11,
             usePointStyle: true,
             filter(item) {
-              // Hide Current from legend clutter; keep series + events
-              return item.text !== "Current";
+              // Hide Current / focus overlay from legend clutter
+              return item.text !== "Current" && item.text !== "Factor extremes";
             },
           },
           onClick(e, legendItem, legend) {
@@ -551,6 +788,20 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
               if (ctx.dataset.label === "Current") {
                 return `Current UMSI: ${Number(r.y).toFixed(1)}`;
               }
+              if (ctx.dataset._focusOverlay) {
+                return [
+                  `Factor extreme: ${r.factorScore != null ? Number(r.factorScore).toFixed(1) : "—"}`,
+                  `UMSI: ${r.umsi ?? r.y ?? "—"}`,
+                  "Click for day detail",
+                ];
+              }
+              if (ctx.dataset._seriesKey === "SPX") {
+                return [
+                  `S&P 500: ${r.y != null ? Number(r.y).toLocaleString(undefined, { maximumFractionDigits: 2 }) : "—"}`,
+                  `UMSI: ${r.umsi ?? "—"}`,
+                  "Click for day detail",
+                ];
+              }
               if (ctx.dataset._seriesKey === "Stress") {
                 return [
                   `Stress: ${r.y ?? "—"}`,
@@ -583,6 +834,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
           limits: {
             x: { min: filteredStart, max: filteredEnd, minRange: 14 * 86400000 },
             y: { min: 0, max: 100 },
+            // y1 auto-scales with visible data (no hard limits)
           },
           pan: {
             enabled: true,
@@ -611,6 +863,14 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
   emitRangeChange(historyChart);
   syncSeriesChips();
   emitVisibilityChange();
+
+  // Re-apply indicator focus after chart rebuild
+  if (preservedFocus) {
+    indicatorFocus = null; // allow setIndicatorFocus to re-apply
+    setIndicatorFocus(preservedFocus);
+  } else {
+    updateFocusBanner(null);
+  }
 
   if (!canvas._umsiPointerBound) {
     canvas._umsiPointerBound = true;
