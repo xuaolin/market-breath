@@ -154,13 +154,10 @@ def update_reference_sources() -> dict:
     src.setdefault("put_call_recent_bootstrapped", False)
 
     if not src["put_call_reference_bootstrapped"]:
-        try:
-            reference = fetch_cboe_equity_put_call_history()
-            src["put_call"] = merge_records(src["put_call"], reference)
-            src["put_call_reference_bootstrapped"] = True
-            print(f"Cboe historical put/call reference loaded: {len(reference):,} rows")
-        except Exception as e:
-            print(f"WARN Cboe historical put/call bootstrap failed: {e}")
+        reference = fetch_cboe_equity_put_call_history()
+        src["put_call"] = merge_records(src["put_call"], reference)
+        src["put_call_reference_bootstrapped"] = True
+        print(f"Cboe historical put/call reference loaded: {len(reference):,} rows")
 
     try:
         recent = fetch_aaii_recent()
@@ -279,6 +276,31 @@ def main() -> None:
     add_price_series(series, "sp500", "^GSPC", "^spx", start, end)
     add_price_series(series, "spy", "SPY", "spy.us", start, end)
     add_price_series(series, "rsp", "RSP", "rsp.us", start, end)
+
+    # Breadth needs ~252 trading days of RSP/SPY relative history. A 90-day
+    # incremental window never accumulates enough points when prior history
+    # lacked those series — force a full backfill from 2007-12-04.
+    full_start = pd.Timestamp("2007-12-04")
+    min_breadth_points = 400
+    for name, yahoo_symbol, stooq_symbol in [
+        ("spy", "SPY", "spy.us"),
+        ("rsp", "RSP", "rsp.us"),
+    ]:
+        if name in series and (not old.empty) and name in old.columns:
+            estimated = int(series[name].combine_first(old[name]).notna().sum())
+        elif name in series:
+            estimated = int(series[name].notna().sum())
+        elif (not old.empty) and name in old.columns:
+            estimated = int(old[name].notna().sum())
+        else:
+            estimated = 0
+
+        if estimated < min_breadth_points:
+            print(
+                f"WARN {name} has only ~{estimated} non-null points after windowed fetch; "
+                f"forcing FULL backfill from {full_start.date()}"
+            )
+            add_price_series(series, name, yahoo_symbol, stooq_symbol, full_start, end)
 
     if not series and old.empty:
         raise RuntimeError("No historical market series could be downloaded and no prior history exists")
@@ -467,6 +489,16 @@ def main() -> None:
     if combined["umsi"].notna().sum() == 0:
         raise RuntimeError(
             "Market history was downloaded, but no UMSI values could be calculated."
+        )
+
+    last_umsi = combined.loc[combined["umsi"].notna()].iloc[-1]
+    if pd.isna(last_umsi.get("breadth_score")):
+        spy_n = int(combined["spy"].notna().sum())
+        rsp_n = int(combined["rsp"].notna().sum())
+        raise RuntimeError(
+            "Latest UMSI row has null breadth_score; "
+            f"spy non-null={spy_n}, rsp non-null={rsp_n}. "
+            "RSP/SPY history is insufficient for the 252-day breadth proxy."
         )
 
     combined.index.name = "date"
