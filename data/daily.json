@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-09-05T01:00:38Z",
+  "generated_at": "2026-09-05T05:00:54Z",
   "status": "ok",
   "umsi": {
-    "value": 84.5,
-    "regime": "RISK-ON / COMPLACENT",
-    "calculation_quality": 0.8
+    "value": 80.2,
+    "regime": "STRONG RISK-ON",
+    "calculation_quality": 1.0
   },
   "stress": {
     "value": 15.5,
@@ -12,9 +12,9 @@
     "quality": 1.0
   },
   "fragility": {
-    "value": 76.7,
-    "status": "HIGH",
-    "quality": 0.6
+    "value": 61.1,
+    "status": "ELEVATED",
+    "quality": 1.0
   },
   "market": {
     "sp500": {
@@ -23,7 +23,7 @@
       "drawdown_52w": -1.03,
       "status": "Near 52W High",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T01:00:38Z",
+      "updated_at": "2026-09-05T05:00:54Z",
       "stale": false
     }
   },
@@ -34,11 +34,11 @@
       "percentile": 9.9,
       "score": 90.1,
       "weight": 0.2,
-      "effective_weight": 0.25,
-      "contribution": 22.52,
+      "effective_weight": 0.2,
+      "contribution": 18.02,
       "status": "Complacent",
-      "source_date": "2026-09-03",
-      "updated_at": "2026-09-05T01:00:38Z",
+      "source_date": "2026-09-04",
+      "updated_at": "2026-09-05T05:00:54Z",
       "stale": false
     },
     "credit": {
@@ -47,24 +47,24 @@
       "percentile": 3.7,
       "score": 96.3,
       "weight": 0.2,
-      "effective_weight": 0.25,
-      "contribution": 24.07,
+      "effective_weight": 0.2,
+      "contribution": 19.26,
       "status": "Complacent",
-      "source_date": "2026-09-03",
-      "updated_at": "2026-09-05T01:00:38Z",
+      "source_date": "2026-09-04",
+      "updated_at": "2026-09-05T05:00:54Z",
       "stale": false
     },
     "breadth": {
       "label": "Market Breadth (RSP/SPY Proxy)",
-      "raw_value": null,
-      "percentile": null,
-      "score": null,
+      "raw_value": -0.004,
+      "percentile": 62.4,
+      "score": 62.4,
       "weight": 0.2,
-      "effective_weight": null,
-      "contribution": null,
-      "status": "Unavailable",
+      "effective_weight": 0.2,
+      "contribution": 12.48,
+      "status": "Neutral",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T01:00:38Z",
+      "updated_at": "2026-09-05T05:00:54Z",
       "stale": false
     },
     "vix": {
@@ -73,24 +73,24 @@
       "percentile": 15.6,
       "score": 84.4,
       "weight": 0.15,
-      "effective_weight": 0.1875,
-      "contribution": 15.82,
+      "effective_weight": 0.15,
+      "contribution": 12.66,
       "status": "Strong Risk-On",
-      "source_date": "2026-09-03",
-      "updated_at": "2026-09-05T01:00:38Z",
+      "source_date": "2026-09-04",
+      "updated_at": "2026-09-05T05:00:54Z",
       "stale": false
     },
     "put_call": {
       "label": "Equity Put/Call Ratio",
-      "raw_value": 0.56,
-      "percentile": 25.0,
-      "score": 75.0,
+      "raw_value": 0.58,
+      "percentile": 24.2,
+      "score": 75.8,
       "weight": 0.1,
-      "effective_weight": 0.125,
-      "contribution": 9.38,
+      "effective_weight": 0.1,
+      "contribution": 7.58,
       "status": "Risk-On",
-      "source_date": "2026-09-02",
-      "updated_at": "2026-09-05T01:00:38Z",
+      "source_date": "2026-09-04",
+      "updated_at": "2026-09-05T05:00:54Z",
       "stale": false
     },
     "drawdown": {
@@ -99,11 +99,11 @@
       "percentile": 62.7,
       "score": 62.7,
       "weight": 0.1,
-      "effective_weight": 0.125,
-      "contribution": 7.84,
+      "effective_weight": 0.1,
+      "contribution": 6.27,
       "status": "Neutral",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T01:00:38Z",
+      "updated_at": "2026-09-05T05:00:54Z",
       "stale": false
     },
     "aaii": {
@@ -112,11 +112,11 @@
       "percentile": 78.3,
       "score": 78.3,
       "weight": 0.05,
-      "effective_weight": 0.0625,
-      "contribution": 4.89,
+      "effective_weight": 0.05,
+      "contribution": 3.92,
       "status": "Risk-On",
       "source_date": "2026-09-02",
-      "updated_at": "2026-09-05T01:00:38Z",
+      "updated_at": "2026-09-05T05:00:54Z",
       "stale": false
     }
   },
