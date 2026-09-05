@@ -344,6 +344,27 @@ def _extract_cboe_equity_ratio(text: str) -> float | None:
     return None
 
 
+def _extract_cboe_report_date(text: str, fallback: str | None = None) -> str | None:
+    """Parse a report date from Cboe daily market statistics HTML/text."""
+    patterns = [
+        r"Market Statistics for\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})",
+        r"as of\s+([A-Za-z]+\s+\d{1,2},\s+\d{4})",
+        r"as of\s+(\d{1,2}/\d{1,2}/\d{4})",
+        r"as of\s+(\d{4}-\d{2}-\d{2})",
+        r"\b(\d{1,2}/\d{1,2}/\d{4})\b",
+        r"\b(\d{4}-\d{2}-\d{2})\b",
+        r"\b([A-Za-z]+\s+\d{1,2},\s+\d{4})\b",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, text, flags=re.I)
+        if not match:
+            continue
+        dt = pd.to_datetime(match.group(1), errors="coerce")
+        if pd.notna(dt):
+            return pd.Timestamp(dt).date().isoformat()
+    return fallback
+
+
 def fetch_cboe_equity_put_call(date: str | None = None) -> dict[str, Any]:
     params = {"dt": date} if date else None
     r = requests.get(
@@ -357,7 +378,9 @@ def fetch_cboe_equity_put_call(date: str | None = None) -> dict[str, Any]:
     if value is None:
         raise RuntimeError(f"Cboe equity put/call ratio not found for {date or 'latest'}")
 
-    source_date = date or pd.Timestamp.utcnow().date().isoformat()
+    source_date = date or _extract_cboe_report_date(r.text)
+    if not source_date:
+        raise RuntimeError("Cboe equity put/call ratio found but report date could not be parsed")
     return {
         "date": source_date,
         "value": round(value, 4),
@@ -374,16 +397,30 @@ def fetch_cboe_equity_put_call_history() -> list[dict[str, Any]]:
         timeout=45,
     )
     r.raise_for_status()
-    df = pd.read_csv(StringIO(r.text))
+
+    # CDN CSV starts with a disclaimer line, then a PRODUCT metadata row,
+    # then the real header: DATE,CALL,PUT,TOTAL,P/C Ratio
+    lines = r.text.splitlines()
+    header_idx = None
+    for i, line in enumerate(lines):
+        if line.startswith("DATE,"):
+            header_idx = i
+            break
+    if header_idx is None:
+        raise RuntimeError("Cboe equity put/call history missing DATE header row")
+
+    csv_text = "\n".join(lines[header_idx:])
+    df = pd.read_csv(StringIO(csv_text))
     if df.empty:
         raise RuntimeError("Cboe equity put/call history is empty")
 
     cols = [str(c).strip() for c in df.columns]
     lower = {c: c.lower() for c in cols}
+    df.columns = cols
 
-    date_candidates = [c for c in cols if "date" in lower[c]]
+    date_candidates = [c for c in cols if lower[c] == "date"]
     if not date_candidates:
-        date_candidates = [cols[0]]
+        raise RuntimeError(f"Cboe archive missing required date column; columns={cols}")
     date_col = date_candidates[0]
 
     ratio_candidates = [
@@ -392,20 +429,12 @@ def fetch_cboe_equity_put_call_history() -> list[dict[str, Any]]:
             "p/c" in lower[c]
             or "put/call" in lower[c]
             or ("put" in lower[c] and "call" in lower[c] and "ratio" in lower[c])
+            or lower[c] in {"p/c ratio", "pc ratio", "put call ratio"}
         )
     ]
-
-    if ratio_candidates:
-        ratio_col = ratio_candidates[-1]
-    else:
-        numeric_candidates = []
-        for c in cols[1:]:
-            numeric = pd.to_numeric(df[c], errors="coerce")
-            if numeric.notna().mean() > 0.7:
-                numeric_candidates.append(c)
-        if not numeric_candidates:
-            raise RuntimeError(f"Could not identify ratio column in Cboe archive: {cols}")
-        ratio_col = numeric_candidates[-1]
+    if not ratio_candidates:
+        raise RuntimeError(f"Cboe archive missing required P/C ratio column; columns={cols}")
+    ratio_col = ratio_candidates[-1]
 
     dates = pd.to_datetime(df[date_col], errors="coerce")
     ratios = pd.to_numeric(df[ratio_col], errors="coerce")
@@ -426,7 +455,7 @@ def fetch_cboe_equity_put_call_history() -> list[dict[str, Any]]:
             }
         )
 
-    if len(out) < 20:
+    if len(out) < 100:
         raise RuntimeError(
             f"Cboe archive parser found too few observations ({len(out)}); columns={cols}"
         )

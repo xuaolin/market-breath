@@ -159,6 +159,44 @@ async function main() {
     ]);
 
     renderTop(daily, intraday);
+
+    const indicators = daily.indicators || {};
+    const quality = Number(daily.umsi?.calculation_quality);
+    const anyScoreNull = Object.values(indicators).some(
+      (item) => item && (item.score == null || Number.isNaN(Number(item.score)))
+    );
+    const breadthUnavailable =
+      !indicators.breadth ||
+      indicators.breadth.score == null ||
+      indicators.breadth.status === "unavailable" ||
+      String(indicators.breadth.status || "").toLowerCase().includes("unavailable");
+
+    if (
+      daily.status === "ok" &&
+      ((Number.isFinite(quality) && quality < 0.85) || anyScoreNull || breadthUnavailable)
+    ) {
+      const message = document.getElementById("systemMessage");
+      const qualityPct = Number.isFinite(quality)
+        ? `${Math.round(quality * 100)}%`
+        : "n/a";
+      const stressQ = daily.stress?.quality;
+      const fragQ = daily.fragility?.quality;
+      const extras = [];
+      if (stressQ != null) extras.push(`stress quality ${Math.round(Number(stressQ) * 100)}%`);
+      if (fragQ != null) extras.push(`fragility quality ${Math.round(Number(fragQ) * 100)}%`);
+      const reasons = [];
+      if (Number.isFinite(quality) && quality < 0.85) {
+        reasons.push(`calculation quality is ${qualityPct}`);
+      }
+      if (anyScoreNull) reasons.push("one or more indicator scores are missing");
+      if (breadthUnavailable) reasons.push("market breadth is unavailable");
+      message.textContent =
+        `Data quality warning: ${reasons.join("; ")}` +
+        (extras.length ? ` (${extras.join(", ")})` : "") +
+        ". Dashboard remains visible; re-run the Update UMSI Data workflow after the P0 fix merges.";
+      message.hidden = false;
+    }
+
     renderIndicators(daily);
     renderForward(history);
     renderEvents(history);
