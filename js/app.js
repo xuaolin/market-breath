@@ -1,5 +1,10 @@
 import { fmt, scoreClass, signedPct, freshness } from "./calculations.js";
-import { renderHistoryChart } from "./charts.js";
+import {
+  renderHistoryChart,
+  resetHistoryZoom,
+  findNearestSeriesPoint,
+  extractFactorBreakdown,
+} from "./charts.js";
 
 async function getJSON(path) {
   const r = await fetch(`${path}?v=${Date.now()}`, { cache: "no-store" });
@@ -42,7 +47,7 @@ function renderTop(daily, intraday) {
   );
 
   const stale =
-    Object.values(daily.indicators || {}).some(x => x.stale) ||
+    Object.values(daily.indicators || {}).some((x) => x.stale) ||
     Boolean(intraday.sp500?.stale);
 
   const badge = document.getElementById("freshnessBadge");
@@ -103,7 +108,7 @@ function retCell(v) {
 function renderForward(history) {
   const tbody = document.querySelector("#forwardTable tbody");
   tbody.innerHTML = "";
-  (history.forward_returns || []).forEach(r => {
+  (history.forward_returns || []).forEach((r) => {
     const tr = document.createElement("tr");
     tr.innerHTML =
       `<td>${r.range}</td><td>${r.observations}</td>` +
@@ -116,13 +121,25 @@ function renderForward(history) {
 function renderEvents(history) {
   const tbody = document.querySelector("#eventsTable tbody");
   tbody.innerHTML = "";
-  (history.events || []).forEach(e => {
+  (history.events || []).forEach((e) => {
     const tr = document.createElement("tr");
+    tr.className = "event-row";
+    tr.tabIndex = 0;
+    tr.setAttribute("role", "button");
+    tr.setAttribute("aria-label", `Show details for ${e.event} on ${e.date}`);
     tr.innerHTML =
       `<td>${e.date}</td><td>${e.event}</td><td>${fmt(e.umsi, 1)}</td>` +
       `<td>${fmt(e.stress, 1)}</td><td>${fmt(e.fragility, 1)}</td>` +
       `<td>${retCell(e.return_1m)}</td><td>${retCell(e.return_3m)}</td>` +
       `<td>${retCell(e.return_6m)}</td>`;
+    const open = () => showEventDetail({ event: e, history });
+    tr.addEventListener("click", open);
+    tr.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        open();
+      }
+    });
     tbody.appendChild(tr);
   });
 }
@@ -130,7 +147,7 @@ function renderEvents(history) {
 function renderSources(daily) {
   const list = document.getElementById("sourceList");
   list.innerHTML = "";
-  (daily.sources || []).forEach(s => {
+  (daily.sources || []).forEach((s) => {
     const a = document.createElement("a");
     a.href = s.url;
     a.target = "_blank";
@@ -140,13 +157,148 @@ function renderSources(daily) {
   });
 }
 
+function statTriple(s) {
+  if (!s) return "—";
+  return `avg ${fmt(s.avg, 1)} · min ${fmt(s.min, 1)} · max ${fmt(s.max, 1)}`;
+}
+
+function updateRangeSummary(payload) {
+  const el = document.getElementById("rangeSummary");
+  if (!el || !payload?.summary) return;
+  const s = payload.summary;
+  const note = document.getElementById("forwardRangeNote");
+
+  el.hidden = false;
+  el.innerHTML = `
+    <div class="range-summary-head">
+      <div>
+        <div class="range-summary-title">Selected window</div>
+        <div class="range-summary-dates">${s.start || "—"} → ${s.end || "—"} · ${s.count} obs · preset ${payload.preset || "—"}</div>
+      </div>
+      <button type="button" id="resetZoomBtn" class="ghost-btn" title="Reset brush / zoom to preset range">Reset zoom</button>
+    </div>
+    <div class="range-summary-grid">
+      <div><span class="k">UMSI</span><span class="v">${statTriple(s.umsi)}</span></div>
+      <div><span class="k">Stress</span><span class="v">${statTriple(s.stress)}</span></div>
+      <div><span class="k">Fragility</span><span class="v">${statTriple(s.fragility)}</span></div>
+      <div><span class="k">SPX Δ</span><span class="v ${s.spxChange == null ? "" : s.spxChange >= 0 ? "positive" : "negative"}">${s.spxChange == null ? "—" : signedPct(s.spxChange, 2)}</span></div>
+    </div>
+  `;
+
+  const resetBtn = document.getElementById("resetZoomBtn");
+  if (resetBtn) resetBtn.addEventListener("click", () => resetHistoryZoom());
+
+  if (note) {
+    note.hidden = false;
+    note.textContent =
+      "Forward-return table remains full-sample (not filtered by chart brush).";
+  }
+}
+
+function showEventDetail({ event, nearest, factors, history }) {
+  const panel = document.getElementById("eventDetail");
+  if (!panel || !event) return;
+
+  const series = history?.series || [];
+  const point = nearest || findNearestSeriesPoint(series, event.date);
+  const factorList = factors || extractFactorBreakdown(point);
+
+  const core = [
+    ["UMSI", event.umsi ?? point?.umsi],
+    ["Stress", event.stress ?? point?.stress],
+    ["Fragility", event.fragility ?? point?.fragility],
+    ["S&P 500", point?.sp500],
+    ["Model quality", point?.quality != null ? `${Math.round(point.quality * 100)}%` : null],
+  ];
+
+  const returns = [
+    ["1M fwd", event.return_1m],
+    ["3M fwd", event.return_3m],
+    ["6M fwd", event.return_6m],
+  ];
+
+  const factorHtml =
+    factorList.length > 0
+      ? factorList
+          .map(
+            (f) =>
+              `<div class="event-factor"><span>${f.label}</span><span>${fmt(f.value, 1)}${
+                f.contribution != null ? ` · contrib ${fmt(f.contribution, 2)}` : ""
+              }</span></div>`
+          )
+          .join("")
+      : `<div class="event-factor muted">No per-factor scores in history.json for this date. Showing series / event fields only.</div>`;
+
+  panel.hidden = false;
+  panel.setAttribute("aria-hidden", "false");
+  panel.innerHTML = `
+    <div class="event-detail-card" role="dialog" aria-labelledby="eventDetailTitle">
+      <div class="event-detail-head">
+        <div>
+          <div id="eventDetailTitle" class="event-detail-title">${event.event || "Historical event"}</div>
+          <div class="event-detail-sub">${event.date}${point?.date && point.date !== event.date ? ` · nearest series ${point.date}` : ""}</div>
+        </div>
+        <button type="button" class="ghost-btn" id="closeEventDetail" aria-label="Close event detail">Close</button>
+      </div>
+      <div class="event-detail-grid">
+        ${core
+          .map(
+            ([k, v]) =>
+              `<div><span class="k">${k}</span><span class="v">${typeof v === "number" ? fmt(v, 1) : v ?? "—"}</span></div>`
+          )
+          .join("")}
+      </div>
+      <div class="event-detail-section">Forward returns</div>
+      <div class="event-detail-grid compact">
+        ${returns
+          .map(
+            ([k, v]) =>
+              `<div><span class="k">${k}</span><span class="v">${v == null ? "—" : signedPct(v, 1)}</span></div>`
+          )
+          .join("")}
+      </div>
+      <div class="event-detail-section">Factor breakdown</div>
+      <div class="event-factors">${factorHtml}</div>
+    </div>
+  `;
+
+  const close = () => {
+    panel.hidden = true;
+    panel.setAttribute("aria-hidden", "true");
+    panel.innerHTML = "";
+  };
+  document.getElementById("closeEventDetail")?.addEventListener("click", close);
+  panel.querySelector(".event-detail-card")?.focus?.();
+}
+
+function chartCallbacks(history) {
+  return {
+    onRangeChange: updateRangeSummary,
+    onEventClick: ({ event, nearest, factors }) =>
+      showEventDetail({ event, nearest, factors, history }),
+  };
+}
+
 function bindRangeButtons(history) {
-  document.querySelectorAll("[data-range]").forEach(btn => {
+  document.querySelectorAll("[data-range]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll("[data-range]").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("[data-range]").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      renderHistoryChart(history, btn.dataset.range);
+      renderHistoryChart(history, btn.dataset.range, chartCallbacks(history));
     });
+  });
+}
+
+function bindKeyboardHelp() {
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key === "Escape") {
+      const panel = document.getElementById("eventDetail");
+      if (panel && !panel.hidden) {
+        panel.hidden = true;
+        panel.setAttribute("aria-hidden", "true");
+        panel.innerHTML = "";
+      }
+    }
   });
 }
 
@@ -176,9 +328,7 @@ async function main() {
       ((Number.isFinite(quality) && quality < 0.85) || anyScoreNull || breadthUnavailable)
     ) {
       const message = document.getElementById("systemMessage");
-      const qualityPct = Number.isFinite(quality)
-        ? `${Math.round(quality * 100)}%`
-        : "n/a";
+      const qualityPct = Number.isFinite(quality) ? `${Math.round(quality * 100)}%` : "n/a";
       const stressQ = daily.stress?.quality;
       const fragQ = daily.fragility?.quality;
       const extras = [];
@@ -201,8 +351,9 @@ async function main() {
     renderForward(history);
     renderEvents(history);
     renderSources(daily);
-    renderHistoryChart(history, "5Y");
+    renderHistoryChart(history, "5Y", chartCallbacks(history));
     bindRangeButtons(history);
+    bindKeyboardHelp();
 
     if (daily.status !== "ok") {
       const message = document.getElementById("systemMessage");
