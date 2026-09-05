@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-05T05:00:54Z",
+  "generated_at": "2026-09-05T20:11:43Z",
   "status": "ok",
   "umsi": {
-    "value": 80.2,
-    "regime": "STRONG RISK-ON",
+    "value": 79.0,
+    "regime": "RISK-ON",
     "calculation_quality": 1.0
   },
   "stress": {
@@ -12,7 +12,7 @@
     "quality": 1.0
   },
   "fragility": {
-    "value": 61.1,
+    "value": 59.9,
     "status": "ELEVATED",
     "quality": 1.0
   },
@@ -23,7 +23,7 @@
       "drawdown_52w": -1.03,
       "status": "Near 52W High",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T05:00:54Z",
+      "updated_at": "2026-09-05T20:11:43Z",
       "stale": false
     }
   },
@@ -38,7 +38,7 @@
       "contribution": 18.02,
       "status": "Complacent",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T05:00:54Z",
+      "updated_at": "2026-09-05T20:11:43Z",
       "stale": false
     },
     "credit": {
@@ -51,7 +51,7 @@
       "contribution": 19.26,
       "status": "Complacent",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T05:00:54Z",
+      "updated_at": "2026-09-05T20:11:43Z",
       "stale": false
     },
     "breadth": {
@@ -64,7 +64,7 @@
       "contribution": 12.48,
       "status": "Neutral",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T05:00:54Z",
+      "updated_at": "2026-09-05T20:11:43Z",
       "stale": false
     },
     "vix": {
@@ -77,20 +77,20 @@
       "contribution": 12.66,
       "status": "Strong Risk-On",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T05:00:54Z",
+      "updated_at": "2026-09-05T20:11:43Z",
       "stale": false
     },
     "put_call": {
       "label": "Equity Put/Call Ratio",
       "raw_value": 0.58,
-      "percentile": 24.2,
-      "score": 75.8,
+      "percentile": 36.4,
+      "score": 63.6,
       "weight": 0.1,
       "effective_weight": 0.1,
-      "contribution": 7.58,
-      "status": "Risk-On",
+      "contribution": 6.36,
+      "status": "Neutral",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T05:00:54Z",
+      "updated_at": "2026-09-05T20:11:43Z",
       "stale": false
     },
     "drawdown": {
@@ -103,7 +103,7 @@
       "contribution": 6.27,
       "status": "Neutral",
       "source_date": "2026-09-04",
-      "updated_at": "2026-09-05T05:00:54Z",
+      "updated_at": "2026-09-05T20:11:43Z",
       "stale": false
     },
     "aaii": {
@@ -116,7 +116,7 @@
       "contribution": 3.92,
       "status": "Risk-On",
       "source_date": "2026-09-02",
-      "updated_at": "2026-09-05T05:00:54Z",
+      "updated_at": "2026-09-05T20:11:43Z",
       "stale": false
     }
   },
