@@ -24,7 +24,120 @@ function setScoreCard(id, value) {
   el.className = `metric-value ${scoreClass(value)}`;
 }
 
-function renderTop(daily, intraday) {
+
+const UMSI_BINS = [
+  [0, 15],
+  [15, 30],
+  [30, 45],
+  [45, 65],
+  [65, 80],
+  [80, 90],
+  [90, 101],
+];
+
+function zoneIndex(v) {
+  if (v == null || Number.isNaN(Number(v))) return null;
+  const n = Number(v);
+  for (let i = 0; i < UMSI_BINS.length; i++) {
+    const [lo, hi] = UMSI_BINS[i];
+    if (n >= lo && n < hi) return i;
+  }
+  return null;
+}
+
+function regimeHeadline(daily) {
+  return daily.umsi?.regime || "—";
+}
+
+function regimeSubline(daily, history) {
+  const parts = [];
+  const dd = daily.market?.sp500?.drawdown_52w;
+  if (dd != null && Number.isFinite(Number(dd))) {
+    const v = Number(dd);
+    parts.push(`52W ${v >= 0 ? "+" : ""}${v.toFixed(1)}%`);
+  }
+  const series = history?.series || [];
+  const umsi = daily.umsi?.value;
+  if (series.length > 5 && umsi != null) {
+    const prev = series[series.length - 6]?.umsi;
+    if (prev != null && Number.isFinite(Number(prev))) {
+      const d = Number(umsi) - Number(prev);
+      parts.push(`1W ${d >= 0 ? "+" : ""}${d.toFixed(1)}`);
+    }
+  }
+  const pc = daily.indicators?.put_call?.status;
+  if (pc) parts.push(`P/C ${pc}`);
+  return parts.join(" · ") || "—";
+}
+
+function fwdFrom(series, i, days) {
+  if (!series || i + days >= series.length) return null;
+  const a = Number(series[i]?.sp500);
+  const b = Number(series[i + days]?.sp500);
+  if (!Number.isFinite(a) || !Number.isFinite(b) || a === 0) return null;
+  return ((b / a) - 1) * 100;
+}
+
+function stats(arr) {
+  const xs = arr.filter((v) => v != null && Number.isFinite(Number(v))).map(Number);
+  if (!xs.length) return { mean: null, std: null, hit: null };
+  const mean = xs.reduce((s, v) => s + v, 0) / xs.length;
+  const std = xs.length > 1
+    ? Math.sqrt(xs.reduce((s, v) => s + (v - mean) ** 2, 0) / (xs.length - 1))
+    : null;
+  const hit = (xs.filter((v) => v > 0).length / xs.length) * 100;
+  return { mean, std, hit };
+}
+
+function computeForwardTable(series) {
+  if (!series?.length) return { rows: [], baseline: {} };
+  const horizons = [
+    ["1m", 21],
+    ["3m", 63],
+    ["6m", 126],
+    ["12m", 252],
+  ];
+  const baseline = {};
+  horizons.forEach(([key, days]) => {
+    baseline[key] = stats(series.map((_, i) => fwdFrom(series, i, days))).mean;
+  });
+
+  const entries = [];
+  let i = 0;
+  while (i < series.length) {
+    const z = zoneIndex(series[i].umsi);
+    if (z == null) {
+      i += 1;
+      continue;
+    }
+    let j = i + 1;
+    while (j < series.length && zoneIndex(series[j].umsi) === z) j += 1;
+    if (j - i >= 5) entries.push({ index: i, zone: z });
+    i = j;
+  }
+
+  const rows = UMSI_BINS.map(([lo, hi], zi) => {
+    const sample = entries.filter((e) => e.zone === zi);
+    const row = {
+      range: `${lo}–${hi === 101 ? 100 : hi}`,
+      observations: sample.length,
+      sampling: "first_entry_min5",
+      small_sample: sample.length < 30,
+    };
+    horizons.forEach(([key, days]) => {
+      const s = stats(sample.map((e) => fwdFrom(series, e.index, days)));
+      const bh = baseline[key];
+      row[`return_${key}`] = s.mean;
+      row[`std_${key}`] = s.std;
+      row[`hit_${key}`] = s.hit;
+      row[`excess_${key}`] = s.mean != null && bh != null ? s.mean - bh : null;
+    });
+    return row;
+  });
+  return { rows, baseline };
+}
+
+function renderTop(daily, intraday, history) {
   setScoreCard("umsiValue", daily.umsi?.value);
   setText("umsiRegime", daily.umsi?.regime || "—");
 
@@ -39,7 +152,7 @@ function renderTop(daily, intraday) {
   setText("sp500Change", signedPct(liveChg, 2));
   setText("sp500State", daily.market?.sp500?.status || "—");
 
-  setText("regimeValue", daily.umsi?.regime || "—");
+  setText("regimeValue", regimeSubline(daily, history));
   setText("qualityValue", `${fmt((daily.umsi?.calculation_quality || 0) * 100, 0)}% inputs`);
   setText(
     "lastUpdated",
@@ -108,22 +221,43 @@ function retCell(v) {
 function renderForward(history) {
   const tbody = document.querySelector("#forwardTable tbody");
   tbody.innerHTML = "";
-  (history.forward_returns || []).forEach((r) => {
+  const computed = computeForwardTable(history.series || []);
+  const rows = computed.rows.length ? computed.rows : (history.forward_returns || []);
+  const noteEl = document.getElementById("forwardRangeNote");
+  if (noteEl && computed.rows.length) {
+    const bh = computed.baseline;
+    const bits = ["1M", "3M", "6M", "12M"].map((lab, i) => {
+      const v = [bh["1m"], bh["3m"], bh["6m"], bh["12m"]][i];
+      return v == null ? null : `${lab} BH ${v >= 0 ? "+" : ""}${v.toFixed(1)}%`;
+    }).filter(Boolean);
+    noteEl.hidden = false;
+    noteEl.textContent =
+      "First stay ≥5 days in zone vs buy-and-hold. n<30 greyed. " +
+      (bits.length ? `Unconditional BH: ${bits.join(" · ")}.` : "");
+  }
+  rows.forEach((r) => {
     const tr = document.createElement("tr");
-    const note = r.sampling === "first_entry" ? " entries" : "";
-    const cell = (mean, std, hit) => {
+    if (r.small_sample || (r.observations != null && r.observations < 30)) {
+      tr.classList.add("small-sample");
+      tr.title = "Small sample (n < 30); treat as illustrative only";
+    }
+    const note = r.sampling ? " entries" : "";
+    const cell = (mean, std, hit, excess) => {
       if (mean == null) return "—";
       const extra = [];
       if (std != null) extra.push(`σ ${Number(std).toFixed(1)}`);
       if (hit != null) extra.push(`${Number(hit).toFixed(0)}%+`);
+      if (excess != null && Number.isFinite(Number(excess))) {
+        extra.push(`xs ${Number(excess) >= 0 ? "+" : ""}${Number(excess).toFixed(1)}`);
+      }
       return `${retCell(mean)}${extra.length ? `<div class="subtle">${extra.join(" · ")}</div>` : ""}`;
     };
     tr.innerHTML =
-      `<td>${r.range}</td><td>${r.observations}${note}</td>` +
-      `<td>${cell(r.return_1m, r.std_1m, r.hit_1m)}</td>` +
-      `<td>${cell(r.return_3m, r.std_3m, r.hit_3m)}</td>` +
-      `<td>${cell(r.return_6m, r.std_6m, r.hit_6m)}</td>` +
-      `<td>${cell(r.return_12m, r.std_12m, r.hit_12m)}</td>`;
+      `<td>${r.range}</td><td>${r.observations}${note}${r.small_sample ? " · n small" : ""}</td>` +
+      `<td>${cell(r.return_1m, r.std_1m, r.hit_1m, r.excess_1m)}</td>` +
+      `<td>${cell(r.return_3m, r.std_3m, r.hit_3m, r.excess_3m)}</td>` +
+      `<td>${cell(r.return_6m, r.std_6m, r.hit_6m, r.excess_6m)}</td>` +
+      `<td>${cell(r.return_12m, r.std_12m, r.hit_12m, r.excess_12m)}</td>`;
     tbody.appendChild(tr);
   });
 }
@@ -320,7 +454,7 @@ async function main() {
       getJSON("data/history.json"),
     ]);
 
-    renderTop(daily, intraday);
+    renderTop(daily, intraday, history);
 
     const indicators = daily.indicators || {};
     const quality = Number(daily.umsi?.calculation_quality);
