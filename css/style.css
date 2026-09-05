@@ -86,7 +86,7 @@ footer { color:#627181; font-size:10px; margin-top:12px; padding-top:10px; borde
   .top-grid { grid-template-columns: repeat(3,1fr); }
   .grid-2,.method-grid { grid-template-columns:1fr; }
 }
-.chart-hint { color: var(--muted); font-size: 10.5px; padding: 0 12px 8px; line-height: 1.45; }
+/* chart-hint styles extended below */
 .panel-note { color: #9aa8b7; font-size: 10.5px; padding: 8px 12px 0; border-bottom: 1px solid var(--border-soft); }
 .range-summary { border-top: 1px solid var(--border); padding: 10px 12px 12px; background: #0a1219; }
 .range-summary-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
@@ -119,4 +119,38 @@ footer { color:#627181; font-size:10px; margin-top:12px; padding-top:10px; borde
   font-size: 13px;
   line-height: 1.25;
   white-space: normal;
+}
+
+
+.chart-controls { display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; }
+.series-chips { display:flex; gap:4px; }
+.series-chip {
+  background:#0b1118; color:var(--muted); border:1px solid var(--border);
+  padding:5px 9px; font-size:11px; cursor:pointer; letter-spacing:.04em;
+  border-radius:2px;
+}
+.series-chip:hover { color:var(--cyan); border-color:#3e6b7a; }
+.series-chip.active { color:var(--cyan); border-color:#3e6b7a; background:#10202a; }
+.series-chip.stress.active { color:var(--orange); border-color:#7a4e2a; background:#1a120c; }
+.series-chip.fragility.active { color:var(--purple); border-color:#5a3a7a; background:#140f1c; }
+.series-chip:focus-visible { outline:1px solid var(--cyan); outline-offset:1px; }
+.chart-hint {
+  color: #9fb4c7;
+  font-size: 11px;
+  padding: 8px 12px;
+  line-height: 1.5;
+  background: rgba(158,231,255,.04);
+  border-bottom: 1px solid var(--border-soft);
+}
+.chart-hint-top {
+  border-bottom: 1px solid var(--border);
+  border-top: none;
+  color: #c5d4e2;
+  background: linear-gradient(90deg, rgba(158,231,255,.07), rgba(255,179,71,.05));
+}
+.chart-hint .hint-key { color: var(--cyan); font-weight: 650; }
+.event-detail-title.snapshot { color: var(--cyan); }
+@media (max-width: 1350px) {
+  .chart-controls { width:100%; justify-content:space-between; margin-top:6px; }
+  .panel-header { flex-wrap:wrap; height:auto; min-height:43px; padding:8px 12px; }
 }
