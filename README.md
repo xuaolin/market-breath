@@ -39,7 +39,7 @@ All sub-scores are normalized to 0–100 using rolling historical percentiles.
 The free/public data architecture deliberately does **not** fabricate missing history.
 
 - FRED provides long histories for VIX, VIX3M and ICE BofA HY OAS.
-- Stooq supplies long price histories used for S&P 500 and the RSP/SPY breadth proxy.
+- Yahoo Finance (with Stooq fallback) supplies long price histories used for S&P 500 and the RSP/SPY breadth proxy.
 - Cboe provides the current equity put/call ratio. The repository accumulates this value over time.
 - AAII's public page exposes recent weekly sentiment, while its complete long-history download can require membership. The repository accumulates public readings over time.
 
@@ -73,6 +73,7 @@ This is preferable to inserting synthetic data.
 │   └── workflows/
 │       └── update-data.yml
 ├── requirements.txt
+├── .gitignore
 ├── .nojekyll
 └── README.md
 ```
