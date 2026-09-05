@@ -111,3 +111,12 @@ footer { color:#627181; font-size:10px; margin-top:12px; padding-top:10px; borde
 .event-row:focus-visible { outline: 1px solid var(--cyan); outline-offset: -1px; }
 @media (max-width: 1350px) { .range-summary-grid, .event-detail-grid, .event-detail-grid.compact { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 720px) { body { min-width: 0; } .shell { padding: 12px; } .range-summary-grid, .event-detail-grid, .event-detail-grid.compact { grid-template-columns: 1fr; } }
+
+#forwardTable tr.small-sample td {
+  opacity: 0.42;
+}
+#regimeValue {
+  font-size: 13px;
+  line-height: 1.25;
+  white-space: normal;
+}
