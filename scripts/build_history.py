@@ -354,6 +354,13 @@ def main() -> None:
         pc_df = pd.DataFrame(src["put_call"])
         pc_df["date"] = pd.to_datetime(pc_df["date"], errors="coerce")
         pc_df["value"] = pd.to_numeric(pc_df["value"], errors="coerce")
+        # Keep archive rows in source_history.json, but do not mix the
+        # 2006-2019 Cboe reference file into the live percentile window.
+        if "reference_history" in pc_df.columns:
+            ref = pc_df["reference_history"].fillna(False).astype(bool)
+            pc_df = pc_df.loc[~ref].copy()
+        cutoff = pd.Timestamp("2020-01-01")
+        pc_df = pc_df.loc[pc_df["date"] >= cutoff].copy()
         pc = (
             pc_df.dropna(subset=["date", "value"])
             .drop_duplicates("date", keep="last")
@@ -363,6 +370,7 @@ def main() -> None:
         common_idx = pc.index.intersection(combined.index)
         pc_obs.loc[common_idx] = pc.loc[common_idx]
         pc_source.loc[common_idx] = common_idx
+        print(f"Put/call score sample (post-2019, non-archive): {int(pc_obs.notna().sum())} obs")
 
     combined["put_call_observed"] = pc_obs
     combined["put_call"] = pc_obs.ffill(limit=5)

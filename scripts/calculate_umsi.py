@@ -284,6 +284,15 @@ def main() -> None:
             "fragility": n(row["fragility"], 1),
             "sp500": n(row["sp500"], 2),
             "quality": n(row["calculation_quality"], 2),
+            "scores": {
+                "term": n(row.get("term_score"), 1),
+                "credit": n(row.get("credit_score"), 1),
+                "breadth": n(row.get("breadth_score"), 1),
+                "vix": n(row.get("vix_score"), 1),
+                "put_call": n(row.get("put_call_score"), 1),
+                "drawdown": n(row.get("drawdown_score"), 1),
+                "aaii": n(row.get("aaii_score"), 1),
+            },
         })
 
     events = []
@@ -307,17 +316,50 @@ def main() -> None:
     for label, days in [("1m", 21), ("3m", 63), ("6m", 126), ("12m", 252)]:
         tmp[f"fwd_{label}"] = (tmp["sp500"].shift(-days) / tmp["sp500"] - 1) * 100
 
+    def bin_id(v):
+        if pd.isna(v):
+            return None
+        for i, (low, high) in enumerate(BINS):
+            if low <= v < high:
+                return i
+        return None
+
+    tmp["bin"] = tmp["umsi"].map(bin_id)
+    tmp["first_entry"] = tmp["bin"].ne(tmp["bin"].shift(1)) & tmp["bin"].notna()
+
+    def zone_stats(sample, col):
+        s = sample[col].dropna()
+        if s.empty:
+            return None, None, None
+        return (
+            n(s.mean(), 1),
+            n(s.std(ddof=1), 1) if len(s) > 1 else None,
+            n((s > 0).mean() * 100, 0),
+        )
+
     forward = []
-    for low, high in BINS:
-        mask = (tmp["umsi"] >= low) & (tmp["umsi"] < high)
-        sample = tmp.loc[mask]
+    for i, (low, high) in enumerate(BINS):
+        sample = tmp.loc[tmp["first_entry"] & (tmp["bin"] == i)]
+        r1, s1, h1 = zone_stats(sample, "fwd_1m")
+        r3, s3, h3 = zone_stats(sample, "fwd_3m")
+        r6, s6, h6 = zone_stats(sample, "fwd_6m")
+        r12, s12, h12 = zone_stats(sample, "fwd_12m")
         forward.append({
             "range": f"{low}–{100 if high == 101 else high}",
-            "observations": int(sample["umsi"].count()),
-            "return_1m": n(sample["fwd_1m"].mean(), 1),
-            "return_3m": n(sample["fwd_3m"].mean(), 1),
-            "return_6m": n(sample["fwd_6m"].mean(), 1),
-            "return_12m": n(sample["fwd_12m"].mean(), 1),
+            "observations": int(len(sample)),
+            "sampling": "first_entry",
+            "return_1m": r1,
+            "std_1m": s1,
+            "hit_1m": h1,
+            "return_3m": r3,
+            "std_3m": s3,
+            "hit_3m": h3,
+            "return_6m": r6,
+            "std_6m": s6,
+            "hit_6m": h6,
+            "return_12m": r12,
+            "std_12m": s12,
+            "hit_12m": h12,
         })
 
     history = {
