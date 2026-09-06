@@ -1,4 +1,4 @@
-import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906d";
+import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906e";
 export async function getJSON(path) {
   const r = await fetch(`${path}?v=${Date.now()}`, { cache: "no-store" });
   if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
