@@ -482,4 +482,3 @@ export function firePointDetail(rawPoint, history) {
       };
   chartCallbacks.onEventClick({ event, nearest, factors });
 }
-

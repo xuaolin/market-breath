@@ -1,6 +1,6 @@
-import { fmt, scoreClass, signedPct, freshness } from "./calculations.js";
-import { extractFactorBreakdown, findNearestSeriesPoint, getIndicatorFocus, resetHistoryZoom, setIndicatorFocus } from "./charts.js";;
-import { appState, computeForwardTable, detectDegradation, isShortSampleIndicator, regimeSubline, setScoreCard, setText } from "./app-lib.js";;
+import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906c";
+import { extractFactorBreakdown, findNearestSeriesPoint, getIndicatorFocus, resetHistoryZoom, setIndicatorFocus } from "./charts.js?v=20260906c";
+import { appState, computeForwardTable, detectDegradation, isShortSampleIndicator, regimeSubline, setScoreCard, setText } from "./app-lib.js?v=20260906c";
 
 export function renderTop(daily, intraday, history) {
   setScoreCard("umsiValue", daily.umsi?.value);
@@ -344,7 +344,7 @@ export function updateRangeSummary(payload) {
       note.hidden = false;
       note.textContent =
         "Forward-return table remains full-sample (not filtered by chart brush). Enable “Sync to chart window” to filter.";
-    }
+  }
   }
 }
 
@@ -438,4 +438,3 @@ export function showEventDetail({ event, nearest, factors, history, focusNote })
   document.getElementById("closeEventDetail")?.addEventListener("click", close);
   panel.querySelector(".event-detail-card")?.focus?.();
 }
-

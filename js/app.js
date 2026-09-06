@@ -1,9 +1,21 @@
-import { fmt, scoreClass, signedPct, freshness } from "./calculations.js";
-import { chartCallbacks, clearIndicatorFocus, extractFactorBreakdown, findNearestSeriesPoint, getHideLowQuality, getIndicatorFocus, getSeriesVisibility, renderHistoryChart, resetHistoryZoom, setHideLowQuality, setIndicatorFocus, setSeriesVisibility } from "./charts.js";;
-import { appState, applyCredibilityUX, computeForwardTable, getJSON, setScoreCard, setText } from "./app-lib.js";;
-import { refreshForwardFromState, renderEvents, renderForward, renderIndicators, renderSources, renderTop, showEventDetail, syncIndicatorRowHighlight, updateRangeSummary } from "./app-panels.js";;
+import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906c";
+import {
+  renderHistoryChart,
+  resetHistoryZoom,
+  findNearestSeriesPoint,
+  extractFactorBreakdown,
+  setSeriesVisibility,
+  getSeriesVisibility,
+  setIndicatorFocus,
+  clearIndicatorFocus,
+  setHideLowQuality,
+  getHideLowQuality,
+  getIndicatorFocus,
+} from "./charts.js?v=20260906c";
+import { appState, applyCredibilityUX, computeForwardTable, getJSON, setScoreCard, setText } from "./app-lib.js?v=20260906c";
+import { refreshForwardFromState, renderEvents, renderForward, renderIndicators, renderSources, renderTop, showEventDetail, syncIndicatorRowHighlight, updateRangeSummary } from "./app-panels.js?v=20260906c";
 
-function chartCallbacks(history) {
+function buildChartCallbacks(history) {
   return {
     onRangeChange: updateRangeSummary,
     onEventClick: ({ event, nearest, factors }) =>
@@ -65,7 +77,7 @@ function bindRangeButtons(history) {
     btn.addEventListener("click", () => {
       document.querySelectorAll("[data-range]").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      renderHistoryChart(history, btn.dataset.range, chartCallbacks(history));
+      renderHistoryChart(history, btn.dataset.range, buildChartCallbacks(history));
     });
   });
 }
@@ -129,7 +141,7 @@ async function main() {
     renderSources(daily);
     bindSeriesChips();
     bindHideLowQChip();
-    renderHistoryChart(history, "5Y", chartCallbacks(history));
+    renderHistoryChart(history, "5Y", buildChartCallbacks(history));
     bindRangeButtons(history);
     bindKeyboardHelp();
 
