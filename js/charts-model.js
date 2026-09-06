@@ -1,20 +1,20 @@
-export let historyChart;
-export let chartCallbacks = {};
-export let activeHistory = null;
-export let activeRange = "5Y";
-export let pointerDown = null;
-export let indicatorFocus = null; // { key, label, scoreKey } | null
-
-/** Series visibility: UMSI on by default; Stress/Fragility/SPX start OFF. */
-export let seriesVisibility = {
-  UMSI: true,
-  Stress: false,
-  Fragility: false,
-  SPX: false,
+/** Mutable chart runtime state (object so other modules can assign fields). */
+export const chartState = {
+  historyChart: null,
+  chartCallbacks: {},
+  activeHistory: null,
+  activeRange: "5Y",
+  pointerDown: null,
+  indicatorFocus: null, // { key, label, scoreKey } | null
+  seriesVisibility: {
+    UMSI: true,
+    Stress: false,
+    Fragility: false,
+    SPX: false,
+  },
+  hideLowQuality: false,
 };
 
-/** P0: when true, drop UMSI points with quality < 0.85 from the line (default OFF). */
-export let hideLowQuality = false;
 const LOW_QUALITY_THRESHOLD = 0.85;
 
 export const SERIES_META = {
@@ -211,33 +211,33 @@ export function getChartXBounds(chart) {
 }
 
 export function emitRangeChange(chart) {
-  if (!activeHistory?.series?.length || typeof chartCallbacks.onRangeChange !== "function") return;
+  if (!chartState.activeHistory?.series?.length || typeof chartState.chartCallbacks.onRangeChange !== "function") return;
   const bounds = getChartXBounds(chart);
   if (!bounds) return;
-  const windowed = filterSeriesByWindow(activeHistory.series, bounds.min, bounds.max);
-  chartCallbacks.onRangeChange({
+  const windowed = filterSeriesByWindow(chartState.activeHistory.series, bounds.min, bounds.max);
+  chartState.chartCallbacks.onRangeChange({
     minTs: bounds.min,
     maxTs: bounds.max,
     start: tsToDate(bounds.min),
     end: tsToDate(bounds.max),
     summary: summarizeWindow(windowed),
     points: windowed,
-    preset: activeRange,
+    preset: chartState.activeRange,
   });
 }
 
 export function emitVisibilityChange() {
-  if (typeof chartCallbacks.onSeriesVisibilityChange === "function") {
-    chartCallbacks.onSeriesVisibilityChange({ ...seriesVisibility });
+  if (typeof chartState.chartCallbacks.onSeriesVisibilityChange === "function") {
+    chartState.chartCallbacks.onSeriesVisibilityChange({ ...chartState.seriesVisibility });
   }
 }
 
 export function getSeriesVisibility() {
-  return { ...seriesVisibility };
+  return { ...chartState.seriesVisibility };
 }
 
 export function getHideLowQuality() {
-  return hideLowQuality;
+  return chartState.hideLowQuality;
 }
 
 /**
@@ -245,16 +245,16 @@ export function getHideLowQuality() {
  * Re-renders the active chart range when history is available.
  */
 export function setHideLowQuality(on) {
-  hideLowQuality = Boolean(on);
-  if (activeHistory) {
-    renderHistoryChart(activeHistory, activeRange, chartCallbacks);
+  chartState.hideLowQuality = Boolean(on);
+  if (chartState.activeHistory) {
+    renderHistoryChart(chartState.activeHistory, chartState.activeRange, chartState.chartCallbacks);
   }
   const chip = document.getElementById("hideLowQChip");
   if (chip) {
-    chip.classList.toggle("active", hideLowQuality);
-    chip.setAttribute("aria-pressed", hideLowQuality ? "true" : "false");
+    chip.classList.toggle("active", chartState.hideLowQuality);
+    chip.setAttribute("aria-pressed", chartState.hideLowQuality ? "true" : "false");
   }
-  return hideLowQuality;
+  return chartState.hideLowQuality;
 }
 
 /**
@@ -263,50 +263,50 @@ export function setHideLowQuality(on) {
  * @param {boolean} [visible] - if omitted, toggles
  */
 export function setSeriesVisibility(name, visible) {
-  if (!(name in seriesVisibility)) return seriesVisibility;
-  seriesVisibility[name] = visible == null ? !seriesVisibility[name] : Boolean(visible);
+  if (!(name in chartState.seriesVisibility)) return chartState.seriesVisibility;
+  chartState.seriesVisibility[name] = visible == null ? !chartState.seriesVisibility[name] : Boolean(visible);
 
-  if (historyChart) {
-    historyChart.data.datasets.forEach((ds) => {
+  if (chartState.historyChart) {
+    chartState.historyChart.data.datasets.forEach((ds) => {
       if (ds.label === name && ds._seriesKey) {
-        ds.hidden = !seriesVisibility[name];
+        ds.hidden = !chartState.seriesVisibility[name];
       }
     });
     // Show/hide right axis with SPX
-    if (name === "SPX" && historyChart.options?.scales?.y1) {
-      historyChart.options.scales.y1.display = seriesVisibility.SPX;
+    if (name === "SPX" && chartState.historyChart.options?.scales?.y1) {
+      chartState.historyChart.options.scales.y1.display = chartState.seriesVisibility.SPX;
     }
-    historyChart.update("none");
+    chartState.historyChart.update("none");
   }
 
   emitVisibilityChange();
   syncSeriesChips();
-  return { ...seriesVisibility };
+  return { ...chartState.seriesVisibility };
 }
 
 export function syncSeriesChips() {
   document.querySelectorAll("[data-series]").forEach((chip) => {
     const key = chip.dataset.series;
-    const on = Boolean(seriesVisibility[key]);
+    const on = Boolean(chartState.seriesVisibility[key]);
     chip.classList.toggle("active", on);
     chip.setAttribute("aria-pressed", on ? "true" : "false");
   });
 }
 
 export function getHistoryChart() {
-  return historyChart;
+  return chartState.historyChart;
 }
 
 export function getIndicatorFocus() {
-  return indicatorFocus ? { ...indicatorFocus } : null;
+  return chartState.indicatorFocus ? { ...chartState.indicatorFocus } : null;
 }
 
 export function clearIndicatorFocus() {
-  indicatorFocus = null;
+  chartState.indicatorFocus = null;
   applyIndicatorFocusVisuals();
   updateFocusBanner(null);
-  if (typeof chartCallbacks.onIndicatorFocusChange === "function") {
-    chartCallbacks.onIndicatorFocusChange(null);
+  if (typeof chartState.chartCallbacks.onIndicatorFocusChange === "function") {
+    chartState.chartCallbacks.onIndicatorFocusChange(null);
   }
 }
 
@@ -321,14 +321,14 @@ export function setIndicatorFocus(focus) {
     return null;
   }
   // Toggle off if same key re-selected
-  if (indicatorFocus?.key === focus.key) {
+  if (chartState.indicatorFocus?.key === focus.key) {
     clearIndicatorFocus();
     return null;
   }
 
-  const series = activeHistory?.series || [];
+  const series = chartState.activeHistory?.series || [];
   const hasFactors = seriesHasFactorScores(series, focus.key);
-  indicatorFocus = {
+  chartState.indicatorFocus = {
     key: focus.key,
     label: focus.label || focus.key,
     score: focus.score,
@@ -338,8 +338,8 @@ export function setIndicatorFocus(focus) {
   };
 
   let result = { mode: "banner" };
-  if (hasFactors && historyChart) {
-    const filtered = historyChart.data?.datasets?.find((d) => d._seriesKey === "UMSI")?.data || [];
+  if (hasFactors && chartState.historyChart) {
+    const filtered = chartState.historyChart.data?.datasets?.find((d) => d._seriesKey === "UMSI")?.data || [];
     const scores = filtered.map((p) => extractFactorScore(p.raw || p, focus.key));
     const bounds = quartileBounds(scores);
     const extremePts = [];
@@ -369,20 +369,20 @@ export function setIndicatorFocus(focus) {
     applyIndicatorFocusVisuals([]);
   }
 
-  updateFocusBanner(indicatorFocus);
-  if (typeof chartCallbacks.onIndicatorFocusChange === "function") {
-    chartCallbacks.onIndicatorFocusChange(indicatorFocus);
+  updateFocusBanner(chartState.indicatorFocus);
+  if (typeof chartState.chartCallbacks.onIndicatorFocusChange === "function") {
+    chartState.chartCallbacks.onIndicatorFocusChange(chartState.indicatorFocus);
   }
   return result;
 }
 
 function applyIndicatorFocusVisuals(extremePts = []) {
-  if (!historyChart) return;
-  const dsIdx = historyChart.data.datasets.findIndex((d) => d._focusOverlay);
-  if (dsIdx >= 0) historyChart.data.datasets.splice(dsIdx, 1);
+  if (!chartState.historyChart) return;
+  const dsIdx = chartState.historyChart.data.datasets.findIndex((d) => d._focusOverlay);
+  if (dsIdx >= 0) chartState.historyChart.data.datasets.splice(dsIdx, 1);
 
   if (extremePts.length) {
-    historyChart.data.datasets.push({
+    chartState.historyChart.data.datasets.push({
       type: "scatter",
       label: "Factor extremes",
       _focusOverlay: true,
@@ -397,14 +397,14 @@ function applyIndicatorFocusVisuals(extremePts = []) {
   }
 
   // Subtle pointRadius bump on UMSI for focused state (flash feel without fabricating)
-  historyChart.data.datasets.forEach((ds) => {
+  chartState.historyChart.data.datasets.forEach((ds) => {
     if (ds._seriesKey === "UMSI") {
-      ds.pointRadius = indicatorFocus ? 1.2 : 0;
-      ds.pointBackgroundColor = indicatorFocus ? "rgba(158,231,255,.35)" : undefined;
+      ds.pointRadius = chartState.indicatorFocus ? 1.2 : 0;
+      ds.pointBackgroundColor = chartState.indicatorFocus ? "rgba(158,231,255,.35)" : undefined;
     }
   });
 
-  historyChart.update("none");
+  chartState.historyChart.update("none");
 }
 
 function updateFocusBanner(focus) {
@@ -435,9 +435,9 @@ function updateFocusBanner(focus) {
 }
 
 export function resetHistoryZoom() {
-  if (!historyChart) return;
-  if (typeof historyChart.resetZoom === "function") historyChart.resetZoom();
-  emitRangeChange(historyChart);
+  if (!chartState.historyChart) return;
+  if (typeof chartState.historyChart.resetZoom === "function") chartState.historyChart.resetZoom();
+  emitRangeChange(chartState.historyChart);
 }
 
 export function shortEventLabel(name) {
@@ -466,7 +466,7 @@ export function buildLinePoints(filtered, yKey) {
 }
 
 export function firePointDetail(rawPoint, history) {
-  if (!rawPoint || typeof chartCallbacks.onEventClick !== "function") return;
+  if (!rawPoint || typeof chartState.chartCallbacks.onEventClick !== "function") return;
   const date = rawPoint.date;
   const nearest = findNearestSeriesPoint(history.series, date);
   const factors = extractFactorBreakdown(nearest);
@@ -480,5 +480,8 @@ export function firePointDetail(rawPoint, history) {
         stress: nearest?.stress ?? rawPoint.stress,
         fragility: nearest?.fragility ?? rawPoint.fragility,
       };
-  chartCallbacks.onEventClick({ event, nearest, factors });
+  chartState.chartCallbacks.onEventClick({ event, nearest, factors });
 }
+
+// Deferred import: setHideLowQuality re-renders via charts.js (circular, OK at call time).
+import { renderHistoryChart } from "./charts.js?v=20260906d";

@@ -1,4 +1,4 @@
-import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906c";
+import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906d";
 export async function getJSON(path) {
   const r = await fetch(`${path}?v=${Date.now()}`, { cache: "no-store" });
   if (!r.ok) throw new Error(`${path}: HTTP ${r.status}`);
@@ -283,4 +283,3 @@ export function computeForwardTable(series) {
   });
   return { rows, baseline };
 }
-
