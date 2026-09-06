@@ -15,7 +15,7 @@ export const chartState = {
   hideLowQuality: false,
 };
 
-const LOW_QUALITY_THRESHOLD = 0.85;
+export const LOW_QUALITY_THRESHOLD = 0.85;
 
 export const SERIES_META = {
   UMSI: { borderColor: "#9ee7ff", backgroundColor: "rgba(158,231,255,.03)", yKey: "umsi", yAxisID: "y" },
@@ -407,7 +407,7 @@ function applyIndicatorFocusVisuals(extremePts = []) {
   chartState.historyChart.update("none");
 }
 
-function updateFocusBanner(focus) {
+export function updateFocusBanner(focus) {
   const el = document.getElementById("chartFocusBanner");
   if (!el) return;
   if (!focus) {
@@ -484,4 +484,4 @@ export function firePointDetail(rawPoint, history) {
 }
 
 // Deferred import: setHideLowQuality re-renders via charts.js (circular, OK at call time).
-import { renderHistoryChart } from "./charts.js?v=20260906d";
+import { renderHistoryChart } from "./charts.js?v=20260906e";

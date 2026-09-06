@@ -1,4 +1,4 @@
-import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906d";
+import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906e";
 import {
   renderHistoryChart,
   resetHistoryZoom,
@@ -11,9 +11,9 @@ import {
   setHideLowQuality,
   getHideLowQuality,
   getIndicatorFocus,
-} from "./charts.js?v=20260906d";
-import { appState, applyCredibilityUX, computeForwardTable, getJSON, setScoreCard, setText } from "./app-lib.js?v=20260906d";
-import { refreshForwardFromState, renderEvents, renderForward, renderIndicators, renderSources, renderTop, showEventDetail, syncIndicatorRowHighlight, updateRangeSummary } from "./app-panels.js?v=20260906d";
+} from "./charts.js?v=20260906e";
+import { appState, applyCredibilityUX, computeForwardTable, getJSON, setScoreCard, setText } from "./app-lib.js?v=20260906e";
+import { refreshForwardFromState, renderEvents, renderForward, renderIndicators, renderSources, renderTop, showEventDetail, syncIndicatorRowHighlight, updateRangeSummary } from "./app-panels.js?v=20260906e";
 
 function buildChartCallbacks(history) {
   return {
