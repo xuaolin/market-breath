@@ -1,1 +1,1 @@
-WILL_BE_REPLACED
+LOAD_FROM:/workspace/mb-fix4/js/charts-model.js
