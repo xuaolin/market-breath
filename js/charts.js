@@ -1,5 +1,5 @@
-import * as Mod from "./charts-model.js?v=20260906d";
-import { chartState } from "./charts-model.js?v=20260906d";
+import * as Mod from "./charts-model.js?v=20260906e";
+import { chartState, LOW_QUALITY_THRESHOLD, updateFocusBanner } from "./charts-model.js?v=20260906e";
 export {
   chartState,
   clearIndicatorFocus,
@@ -15,7 +15,7 @@ export {
   setIndicatorFocus,
   setSeriesVisibility,
   summarizeWindow,
-} from "./charts-model.js?v=20260906d";
+} from "./charts-model.js?v=20260906e";
 
 export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
   const canvas = document.getElementById("historyChart");
