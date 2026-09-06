@@ -28,11 +28,13 @@ export const UMSI_BINS = [
   [90, 101],
 ];
 
-/** App state for brush-synced forward returns + indicator focus */
-let fullHistory = null;
-let lastRangePayload = null;
-let syncForwardToWindow = false;
-let activeDaily = null;
+/** App state for brush-synced forward returns + indicator focus (shared across modules) */
+export const appState = {
+  fullHistory: null,
+  lastRangePayload: null,
+  syncForwardToWindow: false,
+  activeDaily: null,
+};
 
 export function zoneIndex(v) {
   if (v == null || Number.isNaN(Number(v))) return null;
@@ -140,7 +142,7 @@ function formatQualityChip(q) {
   return `q ${Math.round(Number(q) * 100)}%`;
 }
 
-function applyCredibilityUX(daily) {
+export function applyCredibilityUX(daily) {
   const deg = detectDegradation(daily);
 
   const badge = document.getElementById("degradeBadge");
