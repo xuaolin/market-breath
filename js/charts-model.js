@@ -1,1 +1,1 @@
-PLACEHOLDER_LOAD_FROM_FILE
+file:///workspace/mb-fix5/js/charts-model.js
