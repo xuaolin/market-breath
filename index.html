@@ -28,18 +28,18 @@
     <div id="systemMessage" class="system-message" hidden></div>
 
     <section class="top-grid">
-      <div class="metric">
-        <div class="metric-label">UMSI · 0–100</div>
+      <div class="metric" id="umsiMetric">
+        <div class="metric-label">UMSI · 0–100 <span id="degradeBadge" class="degrade-badge" hidden title="Model running with missing or low-quality factors">DEGRADED MODEL · 模型降级</span></div>
         <div id="umsiValue" class="metric-value">—</div>
         <div id="umsiRegime" class="metric-sub">—</div>
       </div>
       <div class="metric">
-        <div class="metric-label">Stress Index</div>
+        <div class="metric-label">Stress Index <span id="stressQuality" class="quality-chip" hidden></span></div>
         <div id="stressValue" class="metric-value">—</div>
         <div id="stressStatus" class="metric-sub">—</div>
       </div>
       <div class="metric">
-        <div class="metric-label">Fragility Index</div>
+        <div class="metric-label">Fragility Index <span id="fragilityQuality" class="quality-chip" hidden></span></div>
         <div id="fragilityValue" class="metric-value">—</div>
         <div id="fragilityStatus" class="metric-sub">—</div>
       </div>
@@ -73,6 +73,7 @@
               <button type="button" class="series-chip stress" data-series="Stress" aria-pressed="false" title="Overlay Stress (0-100)">Stress</button>
               <button type="button" class="series-chip fragility" data-series="Fragility" aria-pressed="false" title="Overlay Fragility (0-100)">Fragility</button>
               <button type="button" class="series-chip spx" data-series="SPX" aria-pressed="false" title="Overlay S&amp;P 500 on right axis">SPX</button>
+              <button type="button" class="series-chip lowq" id="hideLowQChip" aria-pressed="false" title="Hide UMSI points with model quality &lt; 85% (default off)">Hide low-q</button>
             </div>
             <div class="range-buttons">
               <button data-range="1Y">1Y</button><button data-range="3Y">3Y</button><button data-range="5Y" class="active">5Y</button><button data-range="10Y">10Y</button><button data-range="MAX">MAX</button>
@@ -135,6 +136,8 @@
           <div class="notes">
             Scores use rolling historical percentiles. Fear-oriented raw variables (VIX, VIX/VIX3M, HY OAS, put/call) are inverted so 100 is risk-on. Market breadth uses an RSP-versus-SPY relative-performance proxy in this free-data version. When a historical AAII or put/call observation is unavailable, the available weights are re-normalized and <b>calculation_quality</b> records how much of the target model was present before re-normalization.<br><br>
             Stress = term structure + credit + VIX + drawdown pressure. Fragility = low-volatility complacency + curve complacency + narrow breadth + AAII optimism + low put/call + concentration proxy + price stretch. Fragility is a vulnerability measure, not a forecast.
+            <div id="shortSampleNote" class="short-sample-note" hidden></div>
+            <div id="methodologyNoteLive" class="methodology-live" hidden></div>
           </div>
         </div>
       </div>
