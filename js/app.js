@@ -1,1 +1,1 @@
-file:///workspace/market-breath-p0/js/app.js
+LOAD_FROM_FILE:/workspace/market-breath-p0/out/FINAL_push_app.json
