@@ -1,6 +1,5 @@
-import * as Mod from "./charts-model.js";
+import * as Mod from "./charts-model.js?v=20260906c";
 export {
-  chartCallbacks,
   clearIndicatorFocus,
   extractFactorBreakdown,
   filterSeriesByWindow,
@@ -14,7 +13,7 @@ export {
   setIndicatorFocus,
   setSeriesVisibility,
   summarizeWindow,
-} from "./charts-model.js";
+} from "./charts-model.js?v=20260906c";
 
 export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
   const canvas = document.getElementById("historyChart");
