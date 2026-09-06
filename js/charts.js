@@ -12,6 +12,7 @@ export {
   clearIndicatorFocus,
   setHideLowQuality,
   getHideLowQuality,
+  getIndicatorFocus,
 } from "./charts-model.js";
 
 export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
