@@ -283,4 +283,3 @@ export function computeForwardTable(series) {
   });
   return { rows, baseline };
 }
-
