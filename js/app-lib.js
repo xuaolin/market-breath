@@ -73,7 +73,7 @@ export function regimeSubline(daily, history) {
 
 
 /** P0: detect model degradation from missing factors / low calculation_quality */
-function detectDegradation(daily) {
+export function detectDegradation(daily) {
   const indicators = daily?.indicators || {};
   const quality = Number(daily?.umsi?.calculation_quality);
   const anyScoreNull = Object.values(indicators).some(
@@ -105,7 +105,7 @@ function detectDegradation(daily) {
  *  - sources text mentions bootstrap (put/call Cboe bootstrap)
  *  - methodology_note describes sparse put/call or AAII (percentiles over last N obs, not 5Y calendar)
  */
-function isShortSampleIndicator(key, item, daily) {
+export function isShortSampleIndicator(key, item, daily) {
   if (key !== "put_call" && key !== "aaii") return false;
   const status = String(item?.status || "").toLowerCase();
   if (/unavailable|stale|bootstrap|thin|short|sparse|limited/.test(status)) return true;
@@ -137,7 +137,7 @@ function isShortSampleIndicator(key, item, daily) {
   return false;
 }
 
-function formatQualityChip(q) {
+export function formatQualityChip(q) {
   if (q == null || !Number.isFinite(Number(q))) return null;
   return `q ${Math.round(Number(q) * 100)}%`;
 }
