@@ -1,6 +1,6 @@
 import { fmt, scoreClass, signedPct, freshness } from "./calculations.js";
 import { findNearestSeriesPoint, extractFactorBreakdown, resetHistoryZoom } from "./charts.js";
-import { setText, setScoreCard, regimeSubline, computeForwardTable } from "./app-lib.js";
+import { setText, setScoreCard, regimeSubline, computeForwardTable, appState } from "./app-lib.js";
 
 export function renderTop(daily, intraday, history) {
   setScoreCard("umsiValue", daily.umsi?.value);
@@ -49,7 +49,7 @@ export function formatRaw(key, item) {
   return fmt(v, 4);
 }
 
-function syncIndicatorRowHighlight() {
+export function syncIndicatorRowHighlight() {
   const focus = getIndicatorFocus();
   document.querySelectorAll("#indicatorTable tbody tr.indicator-row").forEach((tr) => {
     const on = focus && tr.dataset.indicatorKey === focus.key;
@@ -59,9 +59,9 @@ function syncIndicatorRowHighlight() {
 }
 
 function openIndicatorDayDetail(key, item) {
-  if (!fullHistory?.series?.length) return;
-  const latest = fullHistory.series.at(-1);
-  const nearest = findNearestSeriesPoint(fullHistory.series, latest?.date);
+  if (!appState.fullHistory?.series?.length) return;
+  const latest = appState.fullHistory.series.at(-1);
+  const nearest = findNearestSeriesPoint(appState.fullHistory.series, latest?.date);
   const factors = extractFactorBreakdown(nearest);
   showEventDetail({
     event: {
@@ -73,7 +73,7 @@ function openIndicatorDayDetail(key, item) {
     },
     nearest,
     factors,
-    history: fullHistory,
+    history: appState.fullHistory,
     focusNote:
       item
         ? `Indicator ${item.label}: score ${fmt(item.score, 1)} · %ile ${fmt(item.percentile, 1)} · ${item.status || "—"} (from daily.json)`
@@ -84,7 +84,7 @@ function openIndicatorDayDetail(key, item) {
 export function renderIndicators(daily, degradation = null) {
   const tbody = document.querySelector("#indicatorTable tbody");
   tbody.innerHTML = "";
-  activeDaily = daily;
+  appState.activeDaily = daily;
   const deg = degradation || detectDegradation(daily);
 
   Object.entries(daily.indicators || {}).forEach(([key, item]) => {
@@ -236,19 +236,19 @@ function windowScopedNote(computed, payload) {
 
 export function renderForward(history, windowPoints = null) {
   const series =
-    syncForwardToWindow && windowPoints?.length
+    appState.syncForwardToWindow && windowPoints?.length
       ? windowPoints
       : history?.series || [];
   const computed = computeForwardTable(series);
   const rows =
     computed.rows.length
       ? computed.rows
-      : !syncForwardToWindow
+      : !appState.syncForwardToWindow
         ? history?.forward_returns || []
         : [];
   let note;
-  if (syncForwardToWindow && windowPoints?.length) {
-    note = windowScopedNote(computed, lastRangePayload || { points: windowPoints });
+  if (appState.syncForwardToWindow && windowPoints?.length) {
+    note = windowScopedNote(computed, appState.lastRangePayload || { points: windowPoints });
   } else if (computed.rows.length) {
     note = fullSampleNote(computed);
   } else {
@@ -257,12 +257,12 @@ export function renderForward(history, windowPoints = null) {
   paintForwardRows(rows, note);
 }
 
-function refreshForwardFromState() {
-  if (!fullHistory) return;
-  if (syncForwardToWindow && lastRangePayload?.points?.length) {
-    renderForward(fullHistory, lastRangePayload.points);
+export function refreshForwardFromState() {
+  if (!appState.fullHistory) return;
+  if (appState.syncForwardToWindow && appState.lastRangePayload?.points?.length) {
+    renderForward(appState.fullHistory, appState.lastRangePayload.points);
   } else {
-    renderForward(fullHistory, null);
+    renderForward(appState.fullHistory, null);
   }
 }
 
@@ -314,7 +314,7 @@ export function updateRangeSummary(payload) {
   const el = document.getElementById("rangeSummary");
   if (!el || !payload?.summary) return;
   const s = payload.summary;
-  lastRangePayload = payload;
+  appState.lastRangePayload = payload;
 
   el.hidden = false;
   el.innerHTML = `
@@ -336,7 +336,7 @@ export function updateRangeSummary(payload) {
   const resetBtn = document.getElementById("resetZoomBtn");
   if (resetBtn) resetBtn.addEventListener("click", () => resetHistoryZoom());
 
-  if (syncForwardToWindow) {
+  if (appState.syncForwardToWindow) {
     refreshForwardFromState();
   } else {
     const note = document.getElementById("forwardRangeNote");

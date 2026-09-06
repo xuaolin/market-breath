@@ -10,8 +10,9 @@ import {
   clearIndicatorFocus,
   setHideLowQuality,
   getHideLowQuality,
+  getIndicatorFocus,
 } from "./charts.js";
-import { getJSON, setText, setScoreCard, computeForwardTable } from "./app-lib.js";
+import { getJSON, setText, setScoreCard, computeForwardTable, appState, applyCredibilityUX } from "./app-lib.js";
 import {
   renderTop,
   renderIndicators,
@@ -20,6 +21,8 @@ import {
   renderSources,
   updateRangeSummary,
   showEventDetail,
+  refreshForwardFromState,
+  syncIndicatorRowHighlight,
 } from "./app-panels.js";
 
 function chartCallbacks(history) {
@@ -72,9 +75,9 @@ function bindForwardSyncToggle() {
   const toggle = document.getElementById("syncForwardToggle");
   if (!toggle) return;
   toggle.checked = false;
-  syncForwardToWindow = false;
+  appState.syncForwardToWindow = false;
   toggle.addEventListener("change", () => {
-    syncForwardToWindow = Boolean(toggle.checked);
+    appState.syncForwardToWindow = Boolean(toggle.checked);
     refreshForwardFromState();
   });
 }
@@ -115,8 +118,8 @@ async function main() {
       getJSON("data/history.json"),
     ]);
 
-    fullHistory = history;
-    activeDaily = daily;
+    appState.fullHistory = history;
+    appState.activeDaily = daily;
 
     renderTop(daily, intraday, history);
 
