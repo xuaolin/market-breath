@@ -1,1 +1,1 @@
-PLACEHOLDER_LOAD_FROM_/workspace/market-breath-p0/js/app.js
+file:///workspace/market-breath-p0/js/app.js
