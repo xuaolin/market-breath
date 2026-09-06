@@ -1,18 +1,19 @@
 import * as Mod from "./charts-model.js";
 export {
-  filterSeriesByWindow,
-  summarizeWindow,
-  findNearestSeriesPoint,
-  extractFactorBreakdown,
-  getSeriesVisibility,
-  setSeriesVisibility,
-  getHistoryChart,
-  resetHistoryZoom,
-  setIndicatorFocus,
+  chartCallbacks,
   clearIndicatorFocus,
-  setHideLowQuality,
+  extractFactorBreakdown,
+  filterSeriesByWindow,
+  findNearestSeriesPoint,
   getHideLowQuality,
+  getHistoryChart,
   getIndicatorFocus,
+  getSeriesVisibility,
+  resetHistoryZoom,
+  setHideLowQuality,
+  setIndicatorFocus,
+  setSeriesVisibility,
+  summarizeWindow,
 } from "./charts-model.js";
 
 export function renderHistoryChart(history, range = "5Y", callbacks = {}) {

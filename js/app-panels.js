@@ -1,6 +1,6 @@
 import { fmt, scoreClass, signedPct, freshness } from "./calculations.js";
-import { findNearestSeriesPoint, extractFactorBreakdown, resetHistoryZoom } from "./charts.js";
-import { setText, setScoreCard, regimeSubline, computeForwardTable, appState } from "./app-lib.js";
+import { extractFactorBreakdown, findNearestSeriesPoint, getIndicatorFocus, resetHistoryZoom, setIndicatorFocus } from "./charts.js";;
+import { appState, computeForwardTable, detectDegradation, isShortSampleIndicator, regimeSubline, setScoreCard, setText } from "./app-lib.js";;
 
 export function renderTop(daily, intraday, history) {
   setScoreCard("umsiValue", daily.umsi?.value);
@@ -58,7 +58,7 @@ export function syncIndicatorRowHighlight() {
   });
 }
 
-function openIndicatorDayDetail(key, item) {
+export function openIndicatorDayDetail(key, item) {
   if (!appState.fullHistory?.series?.length) return;
   const latest = appState.fullHistory.series.at(-1);
   const nearest = findNearestSeriesPoint(appState.fullHistory.series, latest?.date);
@@ -171,7 +171,7 @@ export function retCell(v) {
   return `<span class="${cls}">${signedPct(v, 1)}</span>`;
 }
 
-function paintForwardRows(rows, noteText) {
+export function paintForwardRows(rows, noteText) {
   const tbody = document.querySelector("#forwardTable tbody");
   tbody.innerHTML = "";
   const noteEl = document.getElementById("forwardRangeNote");
@@ -206,7 +206,7 @@ function paintForwardRows(rows, noteText) {
   });
 }
 
-function fullSampleNote(computed) {
+export function fullSampleNote(computed) {
   const bh = computed.baseline || {};
   const bits = ["1M", "3M", "6M", "12M"].map((lab, i) => {
     const v = [bh["1m"], bh["3m"], bh["6m"], bh["12m"]][i];
@@ -218,7 +218,7 @@ function fullSampleNote(computed) {
   );
 }
 
-function windowScopedNote(computed, payload) {
+export function windowScopedNote(computed, payload) {
   const start = payload?.summary?.start || payload?.start || "—";
   const end = payload?.summary?.end || payload?.end || "—";
   const n = payload?.summary?.count ?? payload?.points?.length ?? "—";

@@ -1,29 +1,7 @@
 import { fmt, scoreClass, signedPct, freshness } from "./calculations.js";
-import {
-  renderHistoryChart,
-  resetHistoryZoom,
-  findNearestSeriesPoint,
-  extractFactorBreakdown,
-  setSeriesVisibility,
-  getSeriesVisibility,
-  setIndicatorFocus,
-  clearIndicatorFocus,
-  setHideLowQuality,
-  getHideLowQuality,
-  getIndicatorFocus,
-} from "./charts.js";
-import { getJSON, setText, setScoreCard, computeForwardTable, appState, applyCredibilityUX } from "./app-lib.js";
-import {
-  renderTop,
-  renderIndicators,
-  renderForward,
-  renderEvents,
-  renderSources,
-  updateRangeSummary,
-  showEventDetail,
-  refreshForwardFromState,
-  syncIndicatorRowHighlight,
-} from "./app-panels.js";
+import { chartCallbacks, clearIndicatorFocus, extractFactorBreakdown, findNearestSeriesPoint, getHideLowQuality, getIndicatorFocus, getSeriesVisibility, renderHistoryChart, resetHistoryZoom, setHideLowQuality, setIndicatorFocus, setSeriesVisibility } from "./charts.js";;
+import { appState, applyCredibilityUX, computeForwardTable, getJSON, setScoreCard, setText } from "./app-lib.js";;
+import { refreshForwardFromState, renderEvents, renderForward, renderIndicators, renderSources, renderTop, showEventDetail, syncIndicatorRowHighlight, updateRangeSummary } from "./app-panels.js";;
 
 function chartCallbacks(history) {
   return {
