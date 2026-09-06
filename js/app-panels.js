@@ -1,6 +1,6 @@
-import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906c";
-import { extractFactorBreakdown, findNearestSeriesPoint, getIndicatorFocus, resetHistoryZoom, setIndicatorFocus } from "./charts.js?v=20260906c";
-import { appState, computeForwardTable, detectDegradation, isShortSampleIndicator, regimeSubline, setScoreCard, setText } from "./app-lib.js?v=20260906c";
+import { fmt, scoreClass, signedPct, freshness } from "./calculations.js?v=20260906d";
+import { extractFactorBreakdown, findNearestSeriesPoint, getIndicatorFocus, resetHistoryZoom, setIndicatorFocus } from "./charts.js?v=20260906d";
+import { appState, computeForwardTable, detectDegradation, isShortSampleIndicator, regimeSubline, setScoreCard, setText } from "./app-lib.js?v=20260906d";
 
 export function renderTop(daily, intraday, history) {
   setScoreCard("umsiValue", daily.umsi?.value);
