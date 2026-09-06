@@ -1,5 +1,7 @@
-import * as Mod from "./charts-model.js?v=20260906c";
+import * as Mod from "./charts-model.js?v=20260906d";
+import { chartState } from "./charts-model.js?v=20260906d";
 export {
+  chartState,
   clearIndicatorFocus,
   extractFactorBreakdown,
   filterSeriesByWindow,
@@ -13,15 +15,15 @@ export {
   setIndicatorFocus,
   setSeriesVisibility,
   summarizeWindow,
-} from "./charts-model.js?v=20260906c";
+} from "./charts-model.js?v=20260906d";
 
 export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
   const canvas = document.getElementById("historyChart");
   if (!canvas || !history?.series?.length) return;
 
-  Mod.chartCallbacks = callbacks || {};
-  Mod.activeHistory = history;
-  Mod.activeRange = range;
+  chartState.chartCallbacks = callbacks || {};
+  chartState.activeHistory = history;
+  chartState.activeRange = range;
 
   const filtered = Mod.filterRange(history.series, range);
   if (!filtered.length) return;
@@ -39,7 +41,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
   const spxData = Mod.buildLinePoints(filtered, "sp500");
 
   // P0: optionally filter low-quality UMSI points (Hide low-q chip)
-  if (Mod.hideLowQuality) {
+  if (chartState.hideLowQuality) {
     umsiData = umsiData.filter(
       (p) => p.quality == null || !Number.isFinite(Number(p.quality)) || Number(p.quality) >= LOW_QUALITY_THRESHOLD
     );
@@ -136,9 +138,9 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
   });
 
   // Preserve focus across re-renders
-  const preservedFocus = Mod.indicatorFocus ? { ...Mod.indicatorFocus } : null;
+  const preservedFocus = chartState.indicatorFocus ? { ...chartState.indicatorFocus } : null;
 
-  if (Mod.historyChart) Mod.historyChart.destroy();
+  if (chartState.historyChart) chartState.historyChart.destroy();
 
   const lineDataset = (label) => {
     const meta = Mod.SERIES_META[label];
@@ -159,7 +161,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
       pointHoverRadius: 4,
       tension: 0.08,
       fill: false,
-      hidden: !Mod.seriesVisibility[label],
+      hidden: !chartState.seriesVisibility[label],
       borderDash:
         label === "UMSI" || label === "SPX"
           ? undefined
@@ -168,7 +170,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
             : [2, 3],
     };
     // P0: dim UMSI segments touching low-quality points (when not filtered out)
-    if (label === "UMSI" && !Mod.hideLowQuality) {
+    if (label === "UMSI" && !chartState.hideLowQuality) {
       ds.segment = {
         borderColor: (ctx) => {
           const q0 = ctx.p0?.raw?.quality;
@@ -183,7 +185,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
     return ds;
   };
 
-  Mod.historyChart = new Chart(canvas, {
+  chartState.historyChart = new Chart(canvas, {
     type: "line",
     data: {
       datasets: [
@@ -222,20 +224,20 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
       interaction: { mode: "nearest", intersect: false },
       onClick(evt, elements) {
         // Ignore brush/pan releases that moved more than a few pixels
-        if (Mod.pointerDown) {
-          const dx = Math.abs((evt.x ?? 0) - Mod.pointerDown.x);
-          const dy = Math.abs((evt.y ?? 0) - Mod.pointerDown.y);
-          Mod.pointerDown = null;
+        if (chartState.pointerDown) {
+          const dx = Math.abs((evt.x ?? 0) - chartState.pointerDown.x);
+          const dy = Math.abs((evt.y ?? 0) - chartState.pointerDown.y);
+          chartState.pointerDown = null;
           if (dx > 6 || dy > 6) return;
         }
         // Prefer Historical Events hit when present
         if (elements?.length) {
           const eventHit = elements.find((el) => {
-            const ds = Mod.historyChart.data.datasets[el.datasetIndex];
+            const ds = chartState.historyChart.data.datasets[el.datasetIndex];
             return ds?.label === "Historical Events";
           });
           if (eventHit) {
-            const ds = Mod.historyChart.data.datasets[eventHit.datasetIndex];
+            const ds = chartState.historyChart.data.datasets[eventHit.datasetIndex];
             const raw = ds.data[eventHit.index];
             Mod.firePointDetail(raw, history);
             return;
@@ -243,11 +245,11 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
 
           // Any visible line series (UMSI / Stress / Fragility / SPX) or Current / focus overlay
           const lineHit = elements.find((el) => {
-            const ds = Mod.historyChart.data.datasets[el.datasetIndex];
+            const ds = chartState.historyChart.data.datasets[el.datasetIndex];
             return ds && (ds._seriesKey || ds.label === "Current" || ds._focusOverlay);
           });
           if (lineHit) {
-            const ds = Mod.historyChart.data.datasets[lineHit.datasetIndex];
+            const ds = chartState.historyChart.data.datasets[lineHit.datasetIndex];
             const raw = ds.data[lineHit.index];
             Mod.firePointDetail(raw, history);
             return;
@@ -255,7 +257,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
         }
 
         // Fallback: nearest UMSI point by x from click (works even with pointRadius 0)
-        const xScale = Mod.historyChart.scales?.x;
+        const xScale = chartState.historyChart.scales?.x;
         if (!xScale || !umsiData.length) return;
         const xVal = xScale.getValueForPixel(evt.x);
         if (xVal == null || Number.isNaN(xVal)) return;
@@ -303,7 +305,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
         },
         y1: {
           position: "right",
-          display: Mod.seriesVisibility.SPX,
+          display: chartState.seriesVisibility.SPX,
           grid: { drawOnChartArea: false },
           ticks: {
             color: "rgba(120,180,140,.9)",
@@ -439,13 +441,13 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
     },
   });
 
-  Mod.emitRangeChange(Mod.historyChart);
+  Mod.emitRangeChange(chartState.historyChart);
   Mod.syncSeriesChips();
   Mod.emitVisibilityChange();
 
   // Re-apply indicator focus after chart rebuild
   if (preservedFocus) {
-    Mod.indicatorFocus = null; // allow Mod.setIndicatorFocus to re-apply
+    chartState.indicatorFocus = null; // allow Mod.setIndicatorFocus to re-apply
     Mod.setIndicatorFocus(preservedFocus);
   } else {
     updateFocusBanner(null);
@@ -455,7 +457,7 @@ export function renderHistoryChart(history, range = "5Y", callbacks = {}) {
     canvas._umsiPointerBound = true;
     canvas.addEventListener("pointerdown", (e) => {
       const rect = canvas.getBoundingClientRect();
-      Mod.pointerDown = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      chartState.pointerDown = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     });
   }
 }
