@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-07T18:08:27Z",
+  "generated_at": "2026-09-07T21:42:34Z",
   "status": "ok",
   "sp500": {
     "value": 7718.6,
@@ -13,7 +13,7 @@
     "value": 15.3,
     "change_pct": 5.3,
     "source_date": "2026-09-07",
-    "updated_at": "2026-09-07T15:30:01Z",
+    "updated_at": "2026-09-07T15:30:00Z",
     "stale": false,
     "source": "Yahoo Finance chart endpoint"
   },
