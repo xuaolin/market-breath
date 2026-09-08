@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-08T01:14:09Z",
+  "generated_at": "2026-09-08T23:41:46Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -75925,18 +75925,35 @@
     },
     {
       "date": "2026-09-04",
-      "umsi": 79.0,
-      "stress": 15.5,
-      "fragility": 59.9,
+      "umsi": 77.6,
+      "stress": 17.4,
+      "fragility": 59.5,
       "sp500": 7718.6,
       "quality": 1.0,
       "scores": {
-        "term": 90.1,
-        "credit": 96.3,
+        "term": 88.9,
+        "credit": 92.2,
         "breadth": 62.4,
-        "vix": 84.4,
+        "vix": 82.5,
         "put_call": 63.6,
         "drawdown": 62.7,
+        "aaii": 78.3
+      }
+    },
+    {
+      "date": "2026-09-08",
+      "umsi": 70.0,
+      "stress": 27.9,
+      "fragility": 55.2,
+      "sp500": 7673.52,
+      "quality": 1.0,
+      "scores": {
+        "term": 61.0,
+        "credit": 92.0,
+        "breadth": 61.0,
+        "vix": 75.5,
+        "put_call": 63.6,
+        "drawdown": 55.9,
         "aaii": 78.3
       }
     }
@@ -76063,7 +76080,7 @@
       "std_1m": 3.7,
       "hit_1m": 67.0,
       "return_3m": 2.4,
-      "std_3m": 6.7,
+      "std_3m": 6.6,
       "hit_3m": 73.0,
       "return_6m": 5.6,
       "std_6m": 8.6,
@@ -76111,8 +76128,8 @@
       "observations": 24,
       "sampling": "first_entry",
       "return_1m": 0.2,
-      "std_1m": 3.7,
-      "hit_1m": 57.0,
+      "std_1m": 3.6,
+      "hit_1m": 54.0,
       "return_3m": 1.9,
       "std_3m": 4.6,
       "hit_3m": 74.0,
