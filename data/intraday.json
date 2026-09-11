@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11T21:52:44Z",
+  "generated_at": "2026-09-11T23:55:30Z",
   "status": "ok",
   "sp500": {
     "value": 7656.98,
@@ -11,7 +11,7 @@
   },
   "vix": {
     "value": 15.84,
-    "change_pct": -11.21,
+    "change_pct": -3.77,
     "source_date": "2026-09-11",
     "updated_at": "2026-09-11T20:15:00Z",
     "stale": false,
