@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T01:33:55Z",
+  "generated_at": "2026-09-26T01:37:19Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76111,36 +76111,70 @@
       }
     },
     {
+      "date": "2026-09-22",
+      "umsi": 71.8,
+      "stress": 12.7,
+      "fragility": 64.7,
+      "sp500": 7764.64,
+      "quality": 0.9,
+      "scores": {
+        "term": 95.2,
+        "credit": 91.7,
+        "breadth": 33.7,
+        "vix": 85.2,
+        "put_call": null,
+        "drawdown": 75.2,
+        "aaii": 4.0
+      }
+    },
+    {
       "date": "2026-09-23",
-      "umsi": 69.0,
-      "stress": 17.5,
+      "umsi": 68.9,
+      "stress": 17.6,
       "fragility": 64.9,
       "sp500": 7706.03,
       "quality": 0.9,
       "scores": {
         "term": 95.2,
         "credit": 83.7,
-        "breadth": 33.3,
+        "breadth": 33.2,
         "vix": 85.1,
         "put_call": null,
-        "drawdown": 61.1,
+        "drawdown": 61.0,
         "aaii": 15.4
       }
     },
     {
       "date": "2026-09-24",
-      "umsi": 68.7,
-      "stress": 17.6,
-      "fragility": 65.3,
+      "umsi": 66.7,
+      "stress": 19.8,
+      "fragility": 65.2,
       "sp500": 7704.13,
       "quality": 0.9,
       "scores": {
         "term": 95.1,
-        "credit": 83.6,
+        "credit": 74.9,
         "breadth": 32.3,
         "vix": 85.0,
         "put_call": null,
         "drawdown": 61.0,
+        "aaii": 15.4
+      }
+    },
+    {
+      "date": "2026-09-25",
+      "umsi": 69.7,
+      "stress": 18.1,
+      "fragility": 66.3,
+      "sp500": 7743.41,
+      "quality": 1.0,
+      "scores": {
+        "term": 95.0,
+        "credit": 74.8,
+        "breadth": 35.2,
+        "vix": 84.9,
+        "put_call": 82.4,
+        "drawdown": 69.8,
         "aaii": 15.4
       }
     }
