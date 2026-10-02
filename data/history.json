@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-30T02:09:42Z",
+  "generated_at": "2026-10-02T02:18:29Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76197,19 +76197,53 @@
     },
     {
       "date": "2026-09-29",
-      "umsi": 52.8,
-      "stress": 42.8,
-      "fragility": 61.8,
+      "umsi": 51.5,
+      "stress": 44.3,
+      "fragility": 61.5,
       "sp500": 7670.84,
       "quality": 1.0,
       "scores": {
-        "term": 52.4,
-        "credit": 51.2,
+        "term": 49.7,
+        "credit": 47.6,
         "breadth": 29.6,
-        "vix": 67.3,
+        "vix": 67.6,
         "put_call": 97.2,
         "drawdown": 55.5,
         "aaii": 15.4
+      }
+    },
+    {
+      "date": "2026-09-30",
+      "umsi": 55.2,
+      "stress": 47.3,
+      "fragility": 55.8,
+      "sp500": 7651.54,
+      "quality": 0.8,
+      "scores": {
+        "term": 47.9,
+        "credit": 43.0,
+        "breadth": null,
+        "vix": 64.6,
+        "put_call": 97.2,
+        "drawdown": 53.0,
+        "aaii": 25.9
+      }
+    },
+    {
+      "date": "2026-10-01",
+      "umsi": 47.5,
+      "stress": 47.0,
+      "fragility": 57.5,
+      "sp500": 7666.45,
+      "quality": 1.0,
+      "scores": {
+        "term": 47.9,
+        "credit": 42.9,
+        "breadth": 32.1,
+        "vix": 64.5,
+        "put_call": 64.9,
+        "drawdown": 54.8,
+        "aaii": 25.9
       }
     }
   ],
@@ -76320,7 +76354,7 @@
       "return_3m": 3.2,
       "std_3m": 7.3,
       "hit_3m": 73.0,
-      "return_6m": 6.8,
+      "return_6m": 6.9,
       "std_6m": 9.6,
       "hit_6m": 77.0,
       "return_12m": 13.7,
@@ -76340,7 +76374,7 @@
       "return_6m": 5.6,
       "std_6m": 8.6,
       "hit_6m": 78.0,
-      "return_12m": 11.1,
+      "return_12m": 11.2,
       "std_12m": 12.0,
       "hit_12m": 82.0
     },
