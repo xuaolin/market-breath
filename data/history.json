@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-13T03:35:58Z",
+  "generated_at": "2026-10-14T01:56:11Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76333,14 +76333,14 @@
     },
     {
       "date": "2026-10-09",
-      "umsi": 64.7,
-      "stress": 28.7,
+      "umsi": 65.9,
+      "stress": 27.2,
       "fragility": 67.2,
       "sp500": 7811.54,
       "quality": 1.0,
       "scores": {
         "term": 84.0,
-        "credit": 38.6,
+        "credit": 44.3,
         "breadth": 42.9,
         "vix": 79.7,
         "put_call": 73.8,
@@ -76350,18 +76350,35 @@
     },
     {
       "date": "2026-10-12",
-      "umsi": 61.0,
-      "stress": 29.0,
-      "fragility": 61.8,
+      "umsi": 59.9,
+      "stress": 30.8,
+      "fragility": 60.4,
       "sp500": 7807.24,
       "quality": 1.0,
       "scores": {
-        "term": 83.9,
-        "credit": 38.5,
+        "term": 75.9,
+        "credit": 44.3,
         "breadth": 45.8,
-        "vix": 79.6,
+        "vix": 75.6,
         "put_call": 32.6,
         "drawdown": 82.4,
+        "aaii": 78.6
+      }
+    },
+    {
+      "date": "2026-10-13",
+      "umsi": 63.3,
+      "stress": 31.0,
+      "fragility": 67.4,
+      "sp500": 7805.45,
+      "quality": 1.0,
+      "scores": {
+        "term": 75.8,
+        "credit": 44.2,
+        "breadth": 39.5,
+        "vix": 75.6,
+        "put_call": 79.5,
+        "drawdown": 81.9,
         "aaii": 78.6
       }
     }
@@ -76460,7 +76477,7 @@
       "std_6m": 10.6,
       "hit_6m": 88.0,
       "return_12m": 18.3,
-      "std_12m": 14.6,
+      "std_12m": 14.5,
       "hit_12m": 92.0
     },
     {
@@ -76482,7 +76499,7 @@
     },
     {
       "range": "45–65",
-      "observations": 397,
+      "observations": 398,
       "sampling": "first_entry",
       "return_1m": 0.8,
       "std_1m": 3.7,
@@ -76499,7 +76516,7 @@
     },
     {
       "range": "65–80",
-      "observations": 275,
+      "observations": 276,
       "sampling": "first_entry",
       "return_1m": 0.9,
       "std_1m": 3.0,

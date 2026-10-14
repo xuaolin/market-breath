@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-13T23:37:49Z",
+  "generated_at": "2026-10-14T01:56:06Z",
   "status": "ok",
   "sp500": {
-    "value": 7805.59,
+    "value": 7805.45,
     "change_pct": -0.08,
     "source_date": "2026-10-13",
-    "updated_at": "2026-10-13T19:55:00Z",
+    "updated_at": "2026-10-13T20:00:00Z",
     "stale": false,
     "source": "Yahoo Finance chart endpoint"
   },
