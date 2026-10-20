@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T01:25:13Z",
+  "generated_at": "2026-10-20T01:51:43Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76401,18 +76401,52 @@
     },
     {
       "date": "2026-10-15",
-      "umsi": 45.9,
-      "stress": 52.7,
-      "fragility": 48.4,
+      "umsi": 47.7,
+      "stress": 50.0,
+      "fragility": 49.4,
       "sp500": 7744.06,
       "quality": 1.0,
       "scores": {
-        "term": 43.3,
-        "credit": 26.0,
+        "term": 47.1,
+        "credit": 27.8,
         "breadth": 52.7,
-        "vix": 57.6,
+        "vix": 61.8,
         "put_call": 37.8,
         "drawdown": 63.4,
+        "aaii": 55.2
+      }
+    },
+    {
+      "date": "2026-10-16",
+      "umsi": 35.2,
+      "stress": 71.8,
+      "fragility": 37.3,
+      "sp500": 7659.44,
+      "quality": 1.0,
+      "scores": {
+        "term": 10.7,
+        "credit": 22.7,
+        "breadth": 60.3,
+        "vix": 32.5,
+        "put_call": 37.8,
+        "drawdown": 50.2,
+        "aaii": 55.2
+      }
+    },
+    {
+      "date": "2026-10-19",
+      "umsi": 38.5,
+      "stress": 70.9,
+      "fragility": 43.3,
+      "sp500": 7690.73,
+      "quality": 1.0,
+      "scores": {
+        "term": 10.7,
+        "credit": 22.7,
+        "breadth": 55.4,
+        "vix": 32.5,
+        "put_call": 76.1,
+        "drawdown": 54.8,
         "aaii": 55.2
       }
     }
@@ -76516,7 +76550,7 @@
     },
     {
       "range": "30–45",
-      "observations": 278,
+      "observations": 279,
       "sampling": "first_entry",
       "return_1m": 0.9,
       "std_1m": 5.0,
