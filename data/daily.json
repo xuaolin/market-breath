@@ -1,29 +1,29 @@
 {
-  "generated_at": "2026-10-21T01:38:20Z",
+  "generated_at": "2026-10-22T01:33:30Z",
   "status": "ok",
   "umsi": {
-    "value": 42.8,
+    "value": 43.6,
     "regime": "CAUTIOUS",
     "calculation_quality": 1.0
   },
   "stress": {
-    "value": 63.6,
+    "value": 61.7,
     "status": "HIGH",
     "quality": 1.0
   },
   "fragility": {
-    "value": 45.3,
+    "value": 46.2,
     "status": "MODERATE",
     "quality": 1.0
   },
   "market": {
     "sp500": {
-      "value": 7712.57,
-      "change_pct": 0.28,
-      "drawdown_52w": -1.36,
+      "value": 7757.17,
+      "change_pct": 0.58,
+      "drawdown_52w": -0.79,
       "status": "Near 52W High",
-      "source_date": "2026-10-20",
-      "updated_at": "2026-10-21T01:38:20Z",
+      "source_date": "2026-10-21",
+      "updated_at": "2026-10-22T01:33:30Z",
       "stale": false
     }
   },
@@ -37,8 +37,8 @@
       "effective_weight": 0.2,
       "contribution": 4.68,
       "status": "Fear",
-      "source_date": "2026-10-19",
-      "updated_at": "2026-10-21T01:38:20Z",
+      "source_date": "2026-10-20",
+      "updated_at": "2026-10-22T01:33:30Z",
       "stale": false
     },
     "credit": {
@@ -50,21 +50,21 @@
       "effective_weight": 0.2,
       "contribution": 4.68,
       "status": "Fear",
-      "source_date": "2026-10-19",
-      "updated_at": "2026-10-21T01:38:20Z",
+      "source_date": "2026-10-20",
+      "updated_at": "2026-10-22T01:33:30Z",
       "stale": false
     },
     "breadth": {
       "label": "Market Breadth (RSP/SPY Proxy)",
-      "raw_value": -0.0142,
-      "percentile": 56.7,
-      "score": 56.7,
+      "raw_value": -0.0158,
+      "percentile": 55.9,
+      "score": 55.9,
       "weight": 0.2,
       "effective_weight": 0.2,
-      "contribution": 11.34,
+      "contribution": 11.18,
       "status": "Neutral",
-      "source_date": "2026-10-20",
-      "updated_at": "2026-10-21T01:38:20Z",
+      "source_date": "2026-10-21",
+      "updated_at": "2026-10-22T01:33:30Z",
       "stale": false
     },
     "vix": {
@@ -76,8 +76,8 @@
       "effective_weight": 0.15,
       "contribution": 6.56,
       "status": "Cautious",
-      "source_date": "2026-10-19",
-      "updated_at": "2026-10-21T01:38:20Z",
+      "source_date": "2026-10-20",
+      "updated_at": "2026-10-22T01:33:30Z",
       "stale": false
     },
     "put_call": {
@@ -90,20 +90,20 @@
       "contribution": 7.02,
       "status": "Risk-On",
       "source_date": "2026-10-20",
-      "updated_at": "2026-10-21T01:38:20Z",
+      "updated_at": "2026-10-22T01:33:30Z",
       "stale": false
     },
     "drawdown": {
       "label": "S&P 500 52-Week Drawdown",
-      "raw_value": -0.0136,
-      "percentile": 58.1,
-      "score": 58.1,
+      "raw_value": -0.0079,
+      "percentile": 67.5,
+      "score": 67.5,
       "weight": 0.1,
       "effective_weight": 0.1,
-      "contribution": 5.81,
-      "status": "Neutral",
-      "source_date": "2026-10-20",
-      "updated_at": "2026-10-21T01:38:20Z",
+      "contribution": 6.75,
+      "status": "Risk-On",
+      "source_date": "2026-10-21",
+      "updated_at": "2026-10-22T01:33:30Z",
       "stale": false
     },
     "aaii": {
@@ -116,7 +116,7 @@
       "contribution": 2.76,
       "status": "Neutral",
       "source_date": "2026-10-14",
-      "updated_at": "2026-10-21T01:38:20Z",
+      "updated_at": "2026-10-22T01:33:30Z",
       "stale": false
     }
   },
