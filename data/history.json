@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T01:33:59Z",
+  "generated_at": "2026-10-24T01:38:42Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76486,18 +76486,35 @@
     },
     {
       "date": "2026-10-22",
-      "umsi": 49.8,
-      "stress": 54.1,
-      "fragility": 45.6,
+      "umsi": 40.6,
+      "stress": 67.9,
+      "fragility": 40.1,
       "sp500": 7663.43,
       "quality": 1.0,
       "scores": {
-        "term": 46.8,
-        "credit": 24.6,
+        "term": 21.6,
+        "credit": 18.9,
         "breadth": 62.5,
-        "vix": 59.5,
+        "vix": 39.1,
         "put_call": 70.2,
         "drawdown": 50.9,
+        "aaii": 40.0
+      }
+    },
+    {
+      "date": "2026-10-23",
+      "umsi": 39.0,
+      "stress": 68.8,
+      "fragility": 42.1,
+      "sp500": 7623.68,
+      "quality": 1.0,
+      "scores": {
+        "term": 21.6,
+        "credit": 18.9,
+        "breadth": 56.7,
+        "vix": 39.1,
+        "put_call": 70.2,
+        "drawdown": 46.5,
         "aaii": 40.0
       }
     }
@@ -76601,7 +76618,7 @@
     },
     {
       "range": "30–45",
-      "observations": 279,
+      "observations": 280,
       "sampling": "first_entry",
       "return_1m": 0.9,
       "std_1m": 5.0,
