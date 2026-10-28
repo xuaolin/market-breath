@@ -23064,6 +23064,12 @@
       "value": 0.6,
       "updated_at": "2026-10-27T02:07:52Z",
       "source": "https://www.cboe.com/us/options/market_statistics/daily/"
+    },
+    {
+      "date": "2026-10-27",
+      "value": 0.59,
+      "updated_at": "2026-10-28T02:20:06Z",
+      "source": "https://www.cboe.com/us/options/market_statistics/daily/"
     }
   ],
   "aaii": [
@@ -23144,7 +23150,7 @@
       "bullish": 36.3,
       "bearish": 37.0,
       "spread": -0.7,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23152,7 +23158,7 @@
       "bullish": 30.4,
       "bearish": 47.7,
       "spread": -17.3,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23160,7 +23166,7 @@
       "bullish": 36.6,
       "bearish": 39.4,
       "spread": -2.8,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23168,7 +23174,7 @@
       "bullish": 44.9,
       "bearish": 36.1,
       "spread": 8.8,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23176,7 +23182,7 @@
       "bullish": 31.4,
       "bearish": 42.3,
       "spread": -10.9,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23184,7 +23190,7 @@
       "bullish": 36.3,
       "bearish": 37.2,
       "spread": -0.9,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23192,7 +23198,7 @@
       "bullish": 44.9,
       "bearish": 32.9,
       "spread": 12.0,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23200,7 +23206,7 @@
       "bullish": 29.6,
       "bearish": 42.3,
       "spread": -12.7,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23208,7 +23214,7 @@
       "bullish": 31.0,
       "bearish": 42.1,
       "spread": -11.1,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23216,7 +23222,7 @@
       "bullish": 37.0,
       "bearish": 38.0,
       "spread": -1.0,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23224,7 +23230,7 @@
       "bullish": 34.7,
       "bearish": 37.9,
       "spread": -3.2,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23232,7 +23238,7 @@
       "bullish": 35.5,
       "bearish": 39.9,
       "spread": -4.4,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23240,7 +23246,7 @@
       "bullish": 32.9,
       "bearish": 44.4,
       "spread": -11.5,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23248,7 +23254,7 @@
       "bullish": 39.7,
       "bearish": 37.6,
       "spread": 2.1,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23256,7 +23262,7 @@
       "bullish": 38.0,
       "bearish": 39.3,
       "spread": -1.3,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23264,7 +23270,7 @@
       "bullish": 28.8,
       "bearish": 53.3,
       "spread": -24.5,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23272,7 +23278,7 @@
       "bullish": 32.7,
       "bearish": 48.1,
       "spread": -15.4,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23280,7 +23286,7 @@
       "bullish": 34.6,
       "bearish": 46.5,
       "spread": -11.9,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23288,7 +23294,7 @@
       "bullish": 40.3,
       "bearish": 39.0,
       "spread": 1.3,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23296,7 +23302,7 @@
       "bullish": 38.7,
       "bearish": 41.6,
       "spread": -2.9,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     },
     {
@@ -23304,11 +23310,11 @@
       "bullish": 36.9,
       "bearish": 45.8,
       "spread": -8.9,
-      "updated_at": "2026-10-27T02:07:50Z",
+      "updated_at": "2026-10-28T02:19:59Z",
       "source": "https://www.aaii.com/sentimentsurvey/sent_results"
     }
   ],
-  "updated_at": "2026-10-27T02:07:52Z",
+  "updated_at": "2026-10-28T02:20:06Z",
   "put_call_reference_bootstrapped": true,
   "put_call_recent_bootstrapped": true
 }
