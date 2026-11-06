@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-05T03:30:52Z",
+  "generated_at": "2026-11-06T03:27:48Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76639,19 +76639,36 @@
     },
     {
       "date": "2026-11-04",
-      "umsi": 46.3,
-      "stress": 73.5,
-      "fragility": 28.0,
+      "umsi": 58.6,
+      "stress": 52.2,
+      "fragility": 33.5,
       "sp500": 7688.62,
       "quality": 1.0,
       "scores": {
-        "term": 9.5,
-        "credit": 19.0,
+        "term": 51.9,
+        "credit": 22.6,
         "breadth": 94.4,
-        "vix": 28.3,
+        "vix": 60.8,
         "put_call": 94.5,
         "drawdown": 54.6,
-        "aaii": 51.6
+        "aaii": 15.6
+      }
+    },
+    {
+      "date": "2026-11-05",
+      "umsi": 56.9,
+      "stress": 57.2,
+      "fragility": 29.7,
+      "sp500": 7353.73,
+      "quality": 1.0,
+      "scores": {
+        "term": 51.9,
+        "credit": 22.6,
+        "breadth": 98.3,
+        "vix": 60.8,
+        "put_call": 94.5,
+        "drawdown": 29.9,
+        "aaii": 15.6
       }
     }
   ],
@@ -76766,7 +76783,7 @@
       "std_6m": 9.6,
       "hit_6m": 77.0,
       "return_12m": 13.7,
-      "std_12m": 13.4,
+      "std_12m": 13.3,
       "hit_12m": 85.0
     },
     {
