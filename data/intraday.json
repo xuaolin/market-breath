@@ -1,27 +1,27 @@
 {
-  "generated_at": "2026-11-10T04:38:50Z",
+  "generated_at": "2026-11-10T20:17:54Z",
   "status": "ok",
   "sp500": {
-    "value": 7549.94,
-    "change_pct": 2.35,
-    "source_date": "2026-11-09",
-    "updated_at": "2026-11-09T21:00:00Z",
+    "value": 7510.83,
+    "change_pct": -0.52,
+    "source_date": "2026-11-10",
+    "updated_at": "2026-11-10T20:17:53Z",
     "stale": false,
     "source": "Yahoo Finance chart endpoint"
   },
   "vix": {
-    "value": 19.92,
-    "change_pct": -22.31,
-    "source_date": "2026-11-09",
-    "updated_at": "2026-11-09T21:15:00Z",
+    "value": 20.09,
+    "change_pct": 0.85,
+    "source_date": "2026-11-10",
+    "updated_at": "2026-11-10T20:02:46Z",
     "stale": false,
     "source": "Yahoo Finance chart endpoint"
   },
   "vix3m": {
-    "value": 20.85,
-    "change_pct": -15.24,
-    "source_date": "2026-11-09",
-    "updated_at": "2026-11-09T21:00:00Z",
+    "value": 21.07,
+    "change_pct": 1.06,
+    "source_date": "2026-11-10",
+    "updated_at": "2026-11-10T20:02:46Z",
     "stale": false,
     "source": "Yahoo Finance chart endpoint"
   }
