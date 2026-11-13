@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-12T03:50:26Z",
+  "generated_at": "2026-11-13T03:26:08Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76724,19 +76724,36 @@
     },
     {
       "date": "2026-11-11",
-      "umsi": 43.7,
-      "stress": 68.5,
-      "fragility": 22.2,
+      "umsi": 49.0,
+      "stress": 59.5,
+      "fragility": 25.1,
       "sp500": 7619.38,
       "quality": 1.0,
       "scores": {
-        "term": 23.3,
-        "credit": 22.0,
+        "term": 38.1,
+        "credit": 24.3,
         "breadth": 93.9,
-        "vix": 36.2,
+        "vix": 51.8,
         "put_call": 50.0,
         "drawdown": 46.9,
-        "aaii": 15.6
+        "aaii": 6.1
+      }
+    },
+    {
+      "date": "2026-11-12",
+      "umsi": 43.9,
+      "stress": 60.2,
+      "fragility": 20.4,
+      "sp500": 7592.4,
+      "quality": 1.0,
+      "scores": {
+        "term": 38.1,
+        "credit": 24.3,
+        "breadth": 93.2,
+        "vix": 51.8,
+        "put_call": 3.4,
+        "drawdown": 43.5,
+        "aaii": 6.1
       }
     }
   ],
@@ -76839,11 +76856,11 @@
     },
     {
       "range": "30–45",
-      "observations": 282,
+      "observations": 283,
       "sampling": "first_entry",
       "return_1m": 0.9,
       "std_1m": 5.0,
-      "hit_1m": 68.0,
+      "hit_1m": 67.0,
       "return_3m": 3.2,
       "std_3m": 7.3,
       "hit_3m": 73.0,
@@ -76856,7 +76873,7 @@
     },
     {
       "range": "45–65",
-      "observations": 402,
+      "observations": 403,
       "sampling": "first_entry",
       "return_1m": 0.8,
       "std_1m": 3.7,
