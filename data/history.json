@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-18T04:27:10Z",
+  "generated_at": "2026-11-19T04:14:25Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76792,18 +76792,35 @@
     },
     {
       "date": "2026-11-17",
-      "umsi": 31.3,
-      "stress": 81.2,
-      "fragility": 10.7,
+      "umsi": 28.8,
+      "stress": 85.0,
+      "fragility": 9.4,
       "sp500": 7340.53,
       "quality": 1.0,
       "scores": {
-        "term": 6.0,
-        "credit": 21.9,
+        "term": 2.6,
+        "credit": 17.8,
         "breadth": 94.0,
-        "vix": 20.0,
+        "vix": 13.5,
         "put_call": 6.6,
         "drawdown": 29.4,
+        "aaii": 6.1
+      }
+    },
+    {
+      "date": "2026-11-18",
+      "umsi": 28.5,
+      "stress": 85.1,
+      "fragility": 9.4,
+      "sp500": 7323.63,
+      "quality": 1.0,
+      "scores": {
+        "term": 2.6,
+        "credit": 17.8,
+        "breadth": 93.5,
+        "vix": 13.5,
+        "put_call": 4.8,
+        "drawdown": 29.0,
         "aaii": 6.1
       }
     }
@@ -76890,7 +76907,7 @@
     },
     {
       "range": "15–30",
-      "observations": 150,
+      "observations": 151,
       "sampling": "first_entry",
       "return_1m": 1.8,
       "std_1m": 6.6,
@@ -76902,8 +76919,8 @@
       "std_6m": 10.6,
       "hit_6m": 88.0,
       "return_12m": 18.3,
-      "std_12m": 14.5,
-      "hit_12m": 92.0
+      "std_12m": 14.4,
+      "hit_12m": 93.0
     },
     {
       "range": "30–45",
@@ -76946,7 +76963,7 @@
       "return_1m": 0.9,
       "std_1m": 3.0,
       "hit_1m": 67.0,
-      "return_3m": 2.8,
+      "return_3m": 2.7,
       "std_3m": 5.2,
       "hit_3m": 77.0,
       "return_6m": 5.8,
