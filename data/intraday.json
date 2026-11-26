@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T05:07:41Z",
+  "generated_at": "2026-11-26T22:09:24Z",
   "status": "ok",
   "sp500": {
     "value": 7182.78,
@@ -10,10 +10,10 @@
     "source": "Yahoo Finance chart endpoint"
   },
   "vix": {
-    "value": 28.29,
-    "change_pct": 7.32,
-    "source_date": "2026-11-25",
-    "updated_at": "2026-11-25T21:15:00Z",
+    "value": 26.8,
+    "change_pct": -5.27,
+    "source_date": "2026-11-26",
+    "updated_at": "2026-11-26T16:30:00Z",
     "stale": false,
     "source": "Yahoo Finance chart endpoint"
   },
