@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-26T05:07:45Z",
+  "generated_at": "2026-11-27T05:05:31Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76894,9 +76894,9 @@
     },
     {
       "date": "2026-11-25",
-      "umsi": 31.5,
+      "umsi": 31.6,
       "stress": 88.2,
-      "fragility": 11.4,
+      "fragility": 11.5,
       "sp500": 7182.78,
       "quality": 1.0,
       "scores": {
@@ -76906,7 +76906,7 @@
         "vix": 11.2,
         "put_call": 24.2,
         "drawdown": 25.0,
-        "aaii": 44.1
+        "aaii": 45.7
       }
     }
   ],

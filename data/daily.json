@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-11-26T05:07:45Z",
+  "generated_at": "2026-11-27T05:05:31Z",
   "status": "ok",
   "umsi": {
-    "value": 31.5,
+    "value": 31.6,
     "regime": "CAUTIOUS",
     "calculation_quality": 1.0
   },
@@ -12,7 +12,7 @@
     "quality": 1.0
   },
   "fragility": {
-    "value": 11.4,
+    "value": 11.5,
     "status": "LOW",
     "quality": 1.0
   },
@@ -23,7 +23,7 @@
       "drawdown_52w": -8.14,
       "status": "Correction",
       "source_date": "2026-11-25",
-      "updated_at": "2026-11-26T05:07:45Z",
+      "updated_at": "2026-11-27T05:05:31Z",
       "stale": false
     }
   },
@@ -37,8 +37,8 @@
       "effective_weight": 0.2,
       "contribution": 0.42,
       "status": "Extreme Fear",
-      "source_date": "2026-11-24",
-      "updated_at": "2026-11-26T05:07:45Z",
+      "source_date": "2026-11-25",
+      "updated_at": "2026-11-27T05:05:31Z",
       "stale": false
     },
     "credit": {
@@ -50,8 +50,8 @@
       "effective_weight": 0.2,
       "contribution": 2.36,
       "status": "Extreme Fear",
-      "source_date": "2026-11-24",
-      "updated_at": "2026-11-26T05:07:45Z",
+      "source_date": "2026-11-25",
+      "updated_at": "2026-11-27T05:05:31Z",
       "stale": false
     },
     "breadth": {
@@ -64,7 +64,7 @@
       "contribution": 19.92,
       "status": "Complacent",
       "source_date": "2026-11-25",
-      "updated_at": "2026-11-26T05:07:45Z",
+      "updated_at": "2026-11-27T05:05:31Z",
       "stale": false
     },
     "vix": {
@@ -76,8 +76,8 @@
       "effective_weight": 0.15,
       "contribution": 1.68,
       "status": "Extreme Fear",
-      "source_date": "2026-11-24",
-      "updated_at": "2026-11-26T05:07:45Z",
+      "source_date": "2026-11-25",
+      "updated_at": "2026-11-27T05:05:31Z",
       "stale": false
     },
     "put_call": {
@@ -90,7 +90,7 @@
       "contribution": 2.42,
       "status": "Fear",
       "source_date": "2026-11-25",
-      "updated_at": "2026-11-26T05:07:45Z",
+      "updated_at": "2026-11-27T05:05:31Z",
       "stale": false
     },
     "drawdown": {
@@ -103,20 +103,20 @@
       "contribution": 2.5,
       "status": "Fear",
       "source_date": "2026-11-25",
-      "updated_at": "2026-11-26T05:07:45Z",
+      "updated_at": "2026-11-27T05:05:31Z",
       "stale": false
     },
     "aaii": {
       "label": "AAII Bull-Bear Spread",
-      "raw_value": -8.9,
-      "percentile": 44.1,
-      "score": 44.1,
+      "raw_value": -8.3,
+      "percentile": 45.7,
+      "score": 45.7,
       "weight": 0.05,
       "effective_weight": 0.05,
-      "contribution": 2.21,
-      "status": "Cautious",
-      "source_date": "2026-11-18",
-      "updated_at": "2026-11-26T05:07:45Z",
+      "contribution": 2.29,
+      "status": "Neutral",
+      "source_date": "2026-11-25",
+      "updated_at": "2026-11-27T05:05:31Z",
       "stale": false
     }
   },
