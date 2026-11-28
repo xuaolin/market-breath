@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-27T05:05:31Z",
+  "generated_at": "2026-11-28T04:45:22Z",
   "series": [
     {
       "date": "2008-12-02",
@@ -76894,18 +76894,35 @@
     },
     {
       "date": "2026-11-25",
-      "umsi": 31.6,
-      "stress": 88.2,
-      "fragility": 11.5,
+      "umsi": 30.6,
+      "stress": 89.8,
+      "fragility": 10.9,
       "sp500": 7182.78,
       "quality": 1.0,
       "scores": {
-        "term": 2.1,
-        "credit": 11.8,
+        "term": 1.0,
+        "credit": 10.7,
         "breadth": 99.6,
-        "vix": 11.2,
+        "vix": 7.6,
         "put_call": 24.2,
         "drawdown": 25.0,
+        "aaii": 45.7
+      }
+    },
+    {
+      "date": "2026-11-27",
+      "umsi": 35.2,
+      "stress": 87.7,
+      "fragility": 15.7,
+      "sp500": 7297.49,
+      "quality": 1.0,
+      "scores": {
+        "term": 3.0,
+        "credit": 10.6,
+        "breadth": 99.4,
+        "vix": 10.6,
+        "put_call": 58.2,
+        "drawdown": 28.7,
         "aaii": 45.7
       }
     }
